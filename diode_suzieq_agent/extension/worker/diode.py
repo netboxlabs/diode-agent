@@ -8,7 +8,7 @@ from suzieq.poller.worker.writers.output_worker import OutputWorker
 logger = logging.getLogger(__name__)
 LOGGING_THRESHOLD=16384
 
-class LoggingOutputWorker(OutputWorker):
+class DiodeOutputWorker(OutputWorker):
     """LoggingOutputWorker is used to write poller output as logs
     """
     def __init__(self, **kwargs):

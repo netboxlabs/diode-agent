@@ -1,6 +1,6 @@
 # diode-suzieq-agent
 
-This is an example agent that demonstrates how SuzieQ can be used to ingest information to netobox by using `diode-sdk-python`
+This is an example agent that demonstrates how SuzieQ can be used to ingest information to NetBox by using `diode-sdk-python`
 
 # Quickstart
 
@@ -18,8 +18,6 @@ The `config.yml` needs to be updated with an inventory of devices to be discover
 diode:
   config:
     target: localhost:8081
-    app_name: my-producer
-    app_version: 0.0.1
     api_key: abcde
   policies:  
     discovery_1:

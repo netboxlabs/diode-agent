@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# Copyright 2024 NetBox Labs Inc
+"""SqDiodeDB class that is required to be defined, but is only a dummy db"""
+
 import logging
 
 import pandas as pd
@@ -5,8 +9,8 @@ import pyarrow as pa
 from typing import List
 from suzieq.db.base_db import SqDB
 
-class SqLoggingDB(SqDB):
-    '''Class supporting logging backend as DB'''
+class SqDiodeDB(SqDB):
+    '''Class supporting diode backend as DB'''
 
     def __init__(self, cfg: dict, logger: logging.Logger) -> None:
         self.cfg = cfg
