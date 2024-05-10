@@ -39,10 +39,9 @@ test = ["coverage", "pytest", "pytest-cov"]
 
 [tool.setuptools]
 packages = [
-    "diode_suzieq.cli.cli",
+    "diode_suzieq",
+    "diode_suzieq.cli",
     "diode_suzieq.extension",
-    "diode_suzieq.client",
-    "diode_suzieq.parser",
 ]
 
 [build-system]
