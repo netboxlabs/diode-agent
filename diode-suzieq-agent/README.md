@@ -19,6 +19,7 @@ diode:
   config:
     target: localhost:8081
     api_key: abcde
+    tls_verify: false
   policies:  
     discovery_1:
       config:

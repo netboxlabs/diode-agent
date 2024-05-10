@@ -12,60 +12,91 @@ from pathlib import Path
 
 
 from suzieq.version import SUZIEQ_VERSION
-from diode_suzieq_agent.version import version_semver
-from diode_suzieq_agent.extension import install_sq_diode
+from diode_suzieq.client import Client
+from diode_suzieq.parser import parse_config, ParseException
+from diode_suzieq.version import version_semver
+from diode_suzieq.extension import install_sq_diode
 import netboxlabs.diode.sdk.version as SdkVersion
 
 from suzieq.poller.controller.controller import Controller
 from suzieq.shared.exceptions import InventorySourceError, PollingError, SqPollerConfError
-# from netboxlabs.diode.sdk import DiodeClient
 
 from suzieq.shared.utils import (
     poller_log_params, init_logger, log_suzieq_info, validate_sq_config)
 
-APP_NAME = "diode-suzieq-agent"
-APP_VERSION = version_semver()
 SUZIEQ_CONFIG_FILE = "suzieq-cfg.yml"
+TMP_DIR = tempfile.gettempdir()
+
+
+def get_inventory_path(policy_name: str):
+    return f"{TMP_DIR}/inventory_{policy_name}.yaml"
 
 
 def parse_config_file(cfile: Path):
     try:
         with open(cfile, "r") as f:
-            cfg = yaml.safe_load(f.read())
+            cfg = parse_config(f.read())
+    except ParseException as e:
+        sys.exit(e.args[1])
     except Exception as e:
         sys.exit(f"ERROR: Unable to open config file {cfile}: {e.args[1]}")
 
-    cfg or sys.exit(f"ERROR: Empty config file {cfile}")
+    diode = cfg.diode
 
-    isinstance(cfg, dict) or sys.exit(
-        f"ERROR: Invalid config file format {cfile}")
+    if len(diode.policies) > 1:
+        sys.exit(f"ERROR: agent currently supports single policy only")
 
-    return cfg
+    # dump inventory to file
+    for policy_name in diode.policies:
+        inventory_file = get_inventory_path(policy_name)
+        try:
+            with open(inventory_file, "w") as f:
+                yaml.dump(
+                    diode.policies[policy_name].data.inventory, f, allow_unicode=True)
+            SINGLE_INVENTORY_PATH = inventory_file
+        except Exception as e:
+            sys.exit(f"ERROR: Unable to save {inventory_file}: {e.args[1]}")
+    return diode
 
 
-async def start_agent(config: dict):
+def dump_sq_config_file():
+    # Parameters to be stored in SUZIEQ_CONFIG_FILE
+    cfg = {"data-directory": TMP_DIR, "poller": {
+        "logging-level": "WARNING", "period": 30, "connect-timeout": 20, "log-stdout": True}}
+    validate_sq_config(cfg)
+    config_path = f"{TMP_DIR}/{SUZIEQ_CONFIG_FILE}"
+    with open(config_path, "w") as file:
+        yaml.dump(cfg, file, allow_unicode=True)
+
+    return cfg, config_path
+
+
+async def start_agent(cfg):
     try:
-        # diode_client = DiodeClient(
-        #     target="", app_name=APP_NAME, app_version=APP_VERSION)
-
         logfile, loglevel, logsize, log_stdout = poller_log_params({}, is_controller=True
                                                                    )
         logger = init_logger('suzieq.poller.controller', logfile,
                              loglevel, logsize, log_stdout)
         log_suzieq_info('Poller Controller', logger, show_more=True)
-        # Parameters to be stored in SUZIEQ_CONFIG_FILE
-        cfg = {"data-directory": tempfile.gettempdir(), "poller": {
-            "logging-level": "WARNING", "period": 30, "connect-timeout": 20, "log-stdout": True}}
-        validate_sq_config(cfg)
-        config_path = f"{tempfile.gettempdir()}/{SUZIEQ_CONFIG_FILE}"
-        with open(config_path, "w") as file:
-            yaml.dump(cfg, file, allow_unicode=True)
+
+        # start diode client
+        client = Client()
+        client.init_client(target=cfg.config.target,
+                           api_key=cfg.config.api_key,
+                           tls_verify=cfg.config.tls_verify)
+
+        sq_config, sq_config_path = dump_sq_config_file()
+
+        for policy_name in cfg.policies:
+            inventory_path = get_inventory_path(policy_name)
 
         # This arguments is what is passed
         args = SimpleNamespace(run_once="update", input_dir=False, debug=False, no_coalescer=True,
                                update_period=3600, workers=2, service_only=False, exclude_services=False,
-                               inventory="/workspaces/diode-agent/test.yaml", outputs="diode", config=config_path, output_dir=None, ssh_config_file=None)
-        controller = Controller(args, cfg)
+                               inventory=inventory_path, outputs="diode", config=sq_config_path,
+                               output_dir=None, ssh_config_file=None)
+
+        controller = Controller(args, sq_config)
         controller.init()
         await controller.run()
     except (SqPollerConfError, InventorySourceError, PollingError) as error:
@@ -98,14 +129,9 @@ def agent_main():
     )
     args = parser.parse_args()
 
-    cfile = Path(args.config)
-    cfile.is_file() or sys.exit(f"ERROR: \"{cfile}\" is not a file")
-    str(cfile).lower().endswith(".yaml") or sys.exit(
-        f"ERROR: \"{cfile}\" is not a yaml file")
-
-    config = parse_config_file(cfile)
-
+    config = parse_config_file(Path(args.config))
     install_sq_diode()
+
     try:
         asyncio.run(start_agent(config))
     except (KeyboardInterrupt, RuntimeError):

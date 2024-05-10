@@ -1,0 +1,26 @@
+diode:
+  config:
+    target: localhost:8081
+    api_key: abcde
+    tls_verify: false
+  policies:  
+    discovery_1:
+      config:
+        netbox:
+          site: New York NY
+      data:   
+        inventory: 
+          sources:
+            - name: default_inventory
+              hosts:
+                - url: ssh://10.90.0.52 username=admin password=admin
+                - url: ssh://10.90.0.50 username=admin password=admin
+          devices:
+            - name: default_devices
+              transport: ssh
+              ignore-known-hosts: true
+              slow-host: true
+          namespaces:
+            - name: default_namespace
+              source: default_inventory
+              device: default_devices
