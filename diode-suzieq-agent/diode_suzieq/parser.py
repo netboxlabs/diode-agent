@@ -1,7 +1,6 @@
-from pydantic import ValidationError
 import yaml
-from pydantic import BaseModel
 from typing import Any, Dict
+from pydantic import BaseModel, ValidationError
 
 
 class ParseException(Exception):
