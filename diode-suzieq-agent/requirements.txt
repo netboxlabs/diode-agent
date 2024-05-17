@@ -1,0 +1,2 @@
+suzieq==0.22.0
+netboxlabs-diode-sdk==0.0.1
