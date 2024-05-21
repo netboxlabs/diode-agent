@@ -23,4 +23,5 @@ __pycache__/
 .Python
 build/
 dist/
+.eggs/
 *.egg-info/

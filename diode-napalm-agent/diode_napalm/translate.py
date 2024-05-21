@@ -3,11 +3,9 @@
 """Translate from NAPALM output format to Diode SDK entities."""
 
 from typing import Iterable
-from netboxlabs.diode.sdk.diode.v1.ingester_pb2 import (
+from netboxlabs.diode.sdk.ingester import (
     Entity,
-    Site,
     Platform,
-    Manufacturer,
     Device,
     DeviceType,
     Interface,
@@ -24,23 +22,19 @@ def translate_device(device_info: dict) -> Device:
     Returns:
         Device: Translated Device entity.
     """
-    manufacturer = Manufacturer(name=device_info["vendor"])
-    device_type = DeviceType(
-        model=device_info["model"],
-        manufacturer=manufacturer
-    )
-    platform = Platform(
-        name=device_info["driver"],
-        manufacturer=manufacturer
-    )
-    site = Site(name=device_info["site"])
     device = Device(
         name=device_info["hostname"],
-        device_type=device_type,
-        platform=platform,
+        device_type=DeviceType(
+            model=device_info["model"],
+            manufacturer=device_info["vendor"]
+        ),
+        platform=Platform(
+            name=device_info["driver"],
+            manufacturer=device_info["vendor"]
+        ),
         serial=device_info["serial_number"],
         status="active",
-        site=site
+        site=device_info["site"]
     )
     return device
 
