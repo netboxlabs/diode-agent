@@ -1,10 +1,10 @@
 [project]
 name = "diode-napalm-agent"
 version = "0.0.1"  # Overwritten during the build process
-description = "NetBox Labs, Diode SuzieQ Agent"
+description = "NetBox Labs, Diode NAPALM Agent"
 readme = "README.md" 
 requires-python = ">=3.7"
-license = {file = "LICENSE.txt"}
+license = {file = "../LICENSE.txt"}
 authors = [
     {name = "NetBox Labs", email = "support@netboxlabs.com" } # Optional
 ]
@@ -40,7 +40,7 @@ test = ["coverage", "pytest", "pytest-cov"]
 "Homepage" = "https://netboxlabs.com/"
 
 [project.scripts]  # Optional
-diode-napalm-agent = "diode_napalm.cli.cli:agent_main"
+diode-napalm-agent = "diode_napalm.cli.cli:main"
 
 [tool.setuptools]
 packages = [
@@ -55,10 +55,6 @@ build-backend = "setuptools.build_meta"
 
 [tool.ruff]
 line-length = 140
-exclude = [
-    "netboxlabs/diode/sdk/diode/*",
-    "netboxlabs/diode/sdk/validate/*",
-]
 
 [tool.ruff.format]
 quote-style = "double"

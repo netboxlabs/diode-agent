@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Copyright 2024 NetBox Labs Inc
-"""Translate from NAPALM output format to Diode SDK entites"""
+"""Translate from NAPALM output format to Diode SDK entities."""
 
 from typing import Iterable
 from netboxlabs.diode.sdk.diode.v1.ingester_pb2 import (
@@ -15,6 +15,15 @@ from netboxlabs.diode.sdk.diode.v1.ingester_pb2 import (
 
 
 def translate_device(device_info: dict) -> Device:
+    """
+    Translate device information from NAPALM format to Diode SDK Device entity.
+
+    Args:
+        device_info (dict): Dictionary containing device information.
+
+    Returns:
+        Device: Translated Device entity.
+    """
     manufacturer = Manufacturer(name=device_info["vendor"])
     device_type = DeviceType(
         model=device_info["model"],
@@ -37,6 +46,17 @@ def translate_device(device_info: dict) -> Device:
 
 
 def translate_interface(device: Device, if_name: str, interface_info: dict) -> Interface:
+    """
+    Translate interface information from NAPALM format to Diode SDK Interface entity.
+
+    Args:
+        device (Device): The device to which the interface belongs.
+        if_name (str): The name of the interface.
+        interface_info (dict): Dictionary containing interface information.
+
+    Returns:
+        Interface: Translated Interface entity.
+    """
     interface = Interface(
         device=device,
         name=if_name,
@@ -51,17 +71,30 @@ def translate_interface(device: Device, if_name: str, interface_info: dict) -> I
 
 
 def translate_data(data: dict) -> Iterable[Entity]:
+    """
+    Translate data from NAPALM format to Diode SDK entities.
+
+    Args:
+        data (dict): Dictionary containing data to be translated.
+
+    Returns:
+        Iterable[Entity]: Iterable of translated entities.
+    """
     entities = []
 
-    if "device" in data:
-        data["device"]["driver"] = data["driver"]
-        data["device"]["site"] = data["site"]
-        device = translate_device(data["device"])
+    device_info = data.get("device")
+    if device_info:
+        device_info["driver"] = data.get("driver")
+        device_info["site"] = data.get("site")
+        device = translate_device(device_info)
         entities.append(Entity(device=device))
-        if "interface" in data:
-            for if_name in data["interface"]:
-                if if_name in data["device"]["interface_list"]:
-                    entities.append(Entity(interface=translate_interface(
-                        device, if_name, data["interface"][if_name])))
+
+        interfaces = data.get("interface", {})
+        interface_list = device_info.get("interface_list", [])
+        for if_name, interface_info in interfaces.items():
+            if if_name in interface_list:
+                interface = translate_interface(
+                    device, if_name, interface_info)
+                entities.append(Entity(interface=interface))
 
     return entities

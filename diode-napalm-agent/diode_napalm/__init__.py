@@ -1,3 +1,3 @@
 #!/usr/bin/env python
 # Copyright 2024 NetBox Labs Inc
-"""NetBox Labs - Diode NAPAML namespace."""
+"""NetBox Labs - Diode NAPALM namespace."""
