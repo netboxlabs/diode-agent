@@ -61,6 +61,8 @@ async def start_policy(cfg, client):
                 "site": cfg.config.netbox.get("site", None),
                 "device": device.get_facts(),
                 "interface": device.get_interfaces(),
+                "interface_ip": device.get_interfaces_ip(),
+                "vlan": device.get_vlans()
             }
             client.ingest(data)
 

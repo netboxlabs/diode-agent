@@ -9,6 +9,7 @@ from netboxlabs.diode.sdk.ingester import (
     Device,
     DeviceType,
     Interface,
+    IPAddress
 )
 
 
@@ -64,6 +65,33 @@ def translate_interface(device: Device, if_name: str, interface_info: dict) -> I
     return interface
 
 
+def translate_interface_ips(interface: Interface, interfaces_ip: dict) -> Iterable[Entity]:
+    """
+    Translate IP address information for an interface.
+
+    Args:
+        interface (Interface): The interface entity.
+        if_name (str): The name of the interface.
+        interfaces_ip (dict): Dictionary containing interface IP information.
+
+    Returns:
+        Iterable[Entity]: Iterable of translated IP address entities.
+    """
+    ip_entities = []
+
+    for if_ip_name, ip_info in interfaces_ip.items():
+        if interface.name in if_ip_name:
+            for ip_version, default_prefix in (("ipv4", 32), ("ipv6", 128)):
+                for ip, details in ip_info.get(ip_version, {}).items():
+                    ip_entities.append(Entity(
+                        ip_address=IPAddress(
+                            address=f"{ip}/{details.get('prefix_length', default_prefix)}",
+                            interface=interface
+                        )))
+
+    return ip_entities
+
+
 def translate_data(data: dict) -> Iterable[Entity]:
     """
     Translate data from NAPALM format to Diode SDK entities.
@@ -76,19 +104,22 @@ def translate_data(data: dict) -> Iterable[Entity]:
     """
     entities = []
 
-    device_info = data.get("device")
+    device_info = data.get("device", {})
+    interfaces = data.get("interface", {})
+    interfaces_ip = data.get("interface_ip", {})
     if device_info:
         device_info["driver"] = data.get("driver")
         device_info["site"] = data.get("site")
         device = translate_device(device_info)
         entities.append(Entity(device=device))
 
-        interfaces = data.get("interface", {})
         interface_list = device_info.get("interface_list", [])
         for if_name, interface_info in interfaces.items():
             if if_name in interface_list:
                 interface = translate_interface(
                     device, if_name, interface_info)
                 entities.append(Entity(interface=interface))
+                entities.extend(translate_interface_ips(
+                    interface, interfaces_ip))
 
     return entities

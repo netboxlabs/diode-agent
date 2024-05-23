@@ -75,7 +75,7 @@ class Client:
         if self.diode_client is None:
             raise ValueError("diode client defined")
         ret = self.diode_client.ingest(translate_data(data))
-        if not len(ret.errors):
+        if not ret.errors:
             logger.info("successful ingestion")
         else:
-            logger.error(ret)
+            logger.error(ret.errors)
