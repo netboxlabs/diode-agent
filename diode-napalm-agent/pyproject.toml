@@ -28,7 +28,7 @@ classifiers = [  # Optional
 
 dependencies = [
     "napalm==5.0.0",
-    "netboxlabs-diode-sdk==0.0.1",
+    "netboxlabs-diode-sdk==0.0.3",
     "pydantic==2.7.1",
 ]
 
