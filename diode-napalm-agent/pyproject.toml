@@ -4,7 +4,7 @@ version = "0.0.1"  # Overwritten during the build process
 description = "NetBox Labs, Diode NAPALM Agent"
 readme = "README.md" 
 requires-python = ">=3.7"
-license = {file = "LICENSE.txt"}
+license = { text = "TBD" }
 authors = [
     {name = "NetBox Labs", email = "support@netboxlabs.com" } # Optional
 ]

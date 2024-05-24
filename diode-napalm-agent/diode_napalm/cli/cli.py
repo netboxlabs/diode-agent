@@ -11,36 +11,13 @@ from pathlib import Path
 
 from napalm import get_network_driver
 from diode_napalm.client import Client
-from diode_napalm.parser import parse_config, ParseException
+from diode_napalm.parser import parse_config_file
 from diode_napalm.version import version_semver
 import netboxlabs.diode.sdk.version as SdkVersion
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-
-def parse_config_file(cfile: Path):
-    """
-    Parse the configuration file and return the diode configuration.
-
-    Args:
-        cfile (Path): Path to the configuration file.
-
-    Returns:
-        cfg.diode: Parsed configuration data.
-
-    Raises:
-        SystemExit: If the configuration file cannot be opened or parsed.
-    """
-    try:
-        with open(cfile, "r") as f:
-            cfg = parse_config(f.read())
-    except ParseException as e:
-        sys.exit(e.args[1])
-    except Exception as e:
-        sys.exit(f"ERROR: Unable to open config file {cfile}: {e.args[1]}")
-    return cfg.diode
 
 
 async def start_policy(cfg, client):
@@ -105,8 +82,9 @@ def main():
         type=str, required=True
     )
     args = parser.parse_args()
-    config = parse_config_file(Path(args.config))
+
     try:
+        config = parse_config_file(Path(args.config))
         asyncio.run(start_agent(config))
     except (KeyboardInterrupt, RuntimeError):
         pass
