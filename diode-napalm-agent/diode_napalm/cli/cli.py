@@ -7,7 +7,7 @@ import asyncio
 import logging
 import sys
 from importlib.metadata import version
-from pathlib import Path
+from dotenv import load_dotenv
 
 from napalm import get_network_driver
 from diode_napalm.client import Client
@@ -81,10 +81,22 @@ def main():
         help="Agent yaml configuration file",
         type=str, required=True
     )
+    parser.add_argument(
+        "-e",
+        "--env",
+        metavar=".env",
+        help="File containing environment variables",
+        type=str,
+    )
     args = parser.parse_args()
 
+    if hasattr(args, 'env') and args.env is not None:
+        if not load_dotenv(args.env, override=True):
+            sys.exit(
+                f"ERROR: : Unable to load environment variables from file {args.env}")
+
     try:
-        config = parse_config_file(Path(args.config))
+        config = parse_config_file(args.config)
         asyncio.run(start_agent(config))
     except (KeyboardInterrupt, RuntimeError):
         pass
