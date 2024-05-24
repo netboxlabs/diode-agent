@@ -79,7 +79,7 @@ async def start_agent(cfg):
                        api_key=cfg.config.api_key, tls_verify=cfg.config.tls_verify)
     for policy_name in cfg.policies:
         try:
-            await start_policy(cfg.policies[policy_name], client)
+            await start_policy(cfg.policies.get(policy_name), client)
         except Exception as e:
             raise Exception(f"Unable to start policy {policy_name}: {e}")
 
@@ -95,13 +95,13 @@ def main():
         "--version",
         action="version",
         version=f"Diode Agent version: {version_semver()}, NAPALM version: {version('napalm')}, Diode SDK version: {SdkVersion.version_semver()}",
-        help='Display Diode Agent, NAPALM and Diode SDK versions'
+        help="Display Diode Agent, NAPALM and Diode SDK versions"
     )
     parser.add_argument(
         "-c",
         "--config",
         metavar="config.yaml",
-        help='Agent yaml configuration file',
+        help="Agent yaml configuration file",
         type=str, required=True
     )
     args = parser.parse_args()

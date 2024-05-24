@@ -24,18 +24,18 @@ def translate_device(device_info: dict) -> Device:
         Device: Translated Device entity.
     """
     device = Device(
-        name=device_info["hostname"],
+        name=device_info.get("hostname"),
         device_type=DeviceType(
-            model=device_info["model"],
-            manufacturer=device_info["vendor"]
+            model=device_info.get("model"),
+            manufacturer=device_info.get("vendor")
         ),
         platform=Platform(
-            name=device_info["driver"],
-            manufacturer=device_info["vendor"]
+            name=device_info.get("driver"),
+            manufacturer=device_info.get("vendor")
         ),
-        serial=device_info["serial_number"],
+        serial=device_info.get("serial_number"),
         status="active",
-        site=device_info["site"]
+        site=device_info.get("site")
     )
     return device
 
@@ -56,11 +56,11 @@ def translate_interface(device: Device, if_name: str, interface_info: dict) -> I
         device=device,
         name=if_name,
         type="other",
-        enabled=interface_info["is_enabled"],
-        mtu=interface_info["mtu"],
-        mac_address=interface_info["mac_address"],
-        speed=int(interface_info["speed"]),
-        description=interface_info["description"]
+        enabled=interface_info.get("is_enabled"),
+        mtu=interface_info.get("mtu"),
+        mac_address=interface_info.get("mac_address"),
+        speed=int(interface_info.get("speed")),
+        description=interface_info.get("description")
     )
     return interface
 

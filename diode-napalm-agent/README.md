@@ -9,8 +9,8 @@ This is a basic set of instructions on how to get started using Diode on your lo
 ## Requirements
 
 - Napalm version 5.0.0
-- Diode Python SDK
-- Pydantic
+- Diode Python SDK 0.0.4
+- Pydantic 2.7.1
 
 ### Create a `config.yml` for your discovery
 
