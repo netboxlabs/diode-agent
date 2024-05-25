@@ -19,7 +19,8 @@ class ParseException(Exception):
 class Napalm(BaseModel):
     """Model for NAPALM configuration."""
 
-    driver: str
+    driver: Optional[str] = Field(
+        default=None, description="Driver name, optional")
     hostname: str
     username: str
     password: str

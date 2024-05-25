@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 from napalm import get_network_driver
 
 from diode_napalm.client import Client
+from diode_napalm.discovery import discover_device_driver
 from diode_napalm.parser import parse_config_file
 from diode_napalm.version import version_semver
 
@@ -32,6 +33,11 @@ async def start_policy(cfg, client):
 
     """
     for info in cfg.data:
+        if info.driver is None:
+            logger.info("Driver not informed, discovering it")
+            info.driver = discover_device_driver(info)
+            if not info.driver:
+                raise Exception("Not able to discover device driver")
         logger.info(f"Get driver '{info.driver}'")
         np_driver = get_network_driver(info.driver)
         logger.info(f"Getting information from '{info.hostname}'")
