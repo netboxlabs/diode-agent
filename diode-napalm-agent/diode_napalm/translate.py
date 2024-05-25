@@ -2,9 +2,10 @@
 # Copyright 2024 NetBox Labs Inc
 """Translate from NAPALM output format to Diode SDK entities."""
 
+import ipaddress
 from typing import Iterable
 
-from netboxlabs.diode.sdk.ingester import Device, DeviceType, Entity, Interface, IPAddress, Platform
+from netboxlabs.diode.sdk.ingester import Device, DeviceType, Entity, Interface, IPAddress, Platform, Prefix
 
 
 def translate_device(device_info: dict) -> Device:
@@ -67,7 +68,7 @@ def translate_interface(device: Device, if_name: str, interface_info: dict) -> I
 
 def translate_interface_ips(interface: Interface, interfaces_ip: dict) -> Iterable[Entity]:
     """
-    Translate IP address information for an interface.
+    Translate IP address and Prefixes information for an interface.
 
     Args:
     ----
@@ -77,7 +78,7 @@ def translate_interface_ips(interface: Interface, interfaces_ip: dict) -> Iterab
 
     Returns:
     -------
-        Iterable[Entity]: Iterable of translated IP address entities.
+        Iterable[Entity]: Iterable of translated IP address and Prefixes entities.
 
     """
     ip_entities = []
@@ -86,11 +87,12 @@ def translate_interface_ips(interface: Interface, interfaces_ip: dict) -> Iterab
         if interface.name in if_ip_name:
             for ip_version, default_prefix in (("ipv4", 32), ("ipv6", 128)):
                 for ip, details in ip_info.get(ip_version, {}).items():
-                    ip_entities.append(Entity(
-                        ip_address=IPAddress(
-                            address=f"{ip}/{details.get('prefix_length', default_prefix)}",
-                            interface=interface
-                        )))
+                    ip_address = f"{ip}/{details.get('prefix_length', default_prefix)}"
+                    network = ipaddress.ip_network(ip_address, strict=False)
+                    ip_entities.append(Entity(prefix=Prefix(
+                        prefix=str(network), site=interface.device.site)))
+                    ip_entities.append(Entity(ip_address=IPAddress(
+                        address=ip_address, interface=interface)))
 
     return ip_entities
 
