@@ -74,7 +74,7 @@ def test_parse_config_file(mock_file, valid_yaml):
     with patch("diode_napalm.parser.parse_config", return_value=parse_config(valid_yaml)):
         config = parse_config_file(Path("fake_path.yaml"))
         assert config.config.target == "target_value"
-        mock_file.assert_called_once_with(Path("fake_path.yaml"), "r")
+        mock_file.assert_called_once_with(Path("fake_path.yaml"))
 
 
 @patch.dict(os.environ, {"API_KEY": "env_api_key"})
