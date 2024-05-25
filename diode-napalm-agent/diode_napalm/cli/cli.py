@@ -7,13 +7,14 @@ import asyncio
 import logging
 import sys
 from importlib.metadata import version
-from dotenv import load_dotenv
 
+import netboxlabs.diode.sdk.version as SdkVersion
+from dotenv import load_dotenv
 from napalm import get_network_driver
+
 from diode_napalm.client import Client
 from diode_napalm.parser import parse_config_file
 from diode_napalm.version import version_semver
-import netboxlabs.diode.sdk.version as SdkVersion
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -25,8 +26,10 @@ async def start_policy(cfg, client):
     Start the policy for the given configuration and client.
 
     Args:
+    ----
         cfg: Configuration data for the policy.
         client: Client instance for data ingestion.
+
     """
     for info in cfg.data:
         logger.info(f"Get driver '{info.driver}'")
@@ -49,7 +52,9 @@ async def start_agent(cfg):
     Start the diode client and execute policies.
 
     Args:
+    ----
         cfg: Configuration data containing policies.
+
     """
     client = Client()
     client.init_client(target=cfg.config.target,
@@ -64,6 +69,7 @@ async def start_agent(cfg):
 def main():
     """
     Main entry point for the Diode NAPALM Agent CLI.
+
     Parses command-line arguments and starts the agent.
     """
     parser = argparse.ArgumentParser(description="Diode Agent for NAPALM")
@@ -71,7 +77,8 @@ def main():
         "-V",
         "--version",
         action="version",
-        version=f"Diode Agent version: {version_semver()}, NAPALM version: {version('napalm')}, Diode SDK version: {SdkVersion.version_semver()}",
+        version=f"Diode Agent version: {version_semver()}, NAPALM version: {version('napalm')}, "
+        f"Diode SDK version: {SdkVersion.version_semver()}",
         help="Display Diode Agent, NAPALM and Diode SDK versions"
     )
     parser.add_argument(

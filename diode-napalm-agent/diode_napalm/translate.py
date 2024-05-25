@@ -3,14 +3,8 @@
 """Translate from NAPALM output format to Diode SDK entities."""
 
 from typing import Iterable
-from netboxlabs.diode.sdk.ingester import (
-    Entity,
-    Platform,
-    Device,
-    DeviceType,
-    Interface,
-    IPAddress
-)
+
+from netboxlabs.diode.sdk.ingester import Device, DeviceType, Entity, Interface, IPAddress, Platform
 
 
 def translate_device(device_info: dict) -> Device:
@@ -18,10 +12,13 @@ def translate_device(device_info: dict) -> Device:
     Translate device information from NAPALM format to Diode SDK Device entity.
 
     Args:
+    ----
         device_info (dict): Dictionary containing device information.
 
     Returns:
+    -------
         Device: Translated Device entity.
+
     """
     device = Device(
         name=device_info.get("hostname"),
@@ -45,12 +42,15 @@ def translate_interface(device: Device, if_name: str, interface_info: dict) -> I
     Translate interface information from NAPALM format to Diode SDK Interface entity.
 
     Args:
+    ----
         device (Device): The device to which the interface belongs.
         if_name (str): The name of the interface.
         interface_info (dict): Dictionary containing interface information.
 
     Returns:
+    -------
         Interface: Translated Interface entity.
+
     """
     interface = Interface(
         device=device,
@@ -70,12 +70,15 @@ def translate_interface_ips(interface: Interface, interfaces_ip: dict) -> Iterab
     Translate IP address information for an interface.
 
     Args:
+    ----
         interface (Interface): The interface entity.
         if_name (str): The name of the interface.
         interfaces_ip (dict): Dictionary containing interface IP information.
 
     Returns:
+    -------
         Iterable[Entity]: Iterable of translated IP address entities.
+
     """
     ip_entities = []
 
@@ -97,10 +100,13 @@ def translate_data(data: dict) -> Iterable[Entity]:
     Translate data from NAPALM format to Diode SDK entities.
 
     Args:
+    ----
         data (dict): Dictionary containing data to be translated.
 
     Returns:
+    -------
         Iterable[Entity]: Iterable of translated entities.
+
     """
     entities = []
 

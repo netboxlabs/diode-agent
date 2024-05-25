@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 # Copyright 2024 NetBox Labs Inc
 """NetBox Labs - Tests."""
-import pytest
 import os
 from pathlib import Path
-from unittest.mock import patch, mock_open
-from diode_napalm.parser import parse_config, parse_config_file, ParseException, resolve_env_vars, Config
+from unittest.mock import mock_open, patch
+
+import pytest
+
+from diode_napalm.parser import Config, ParseException, parse_config, parse_config_file, resolve_env_vars
 
 
 @pytest.fixture
 def valid_yaml():
+    """Valid Yaml Generator."""
     return """
     diode:
       config:
@@ -31,6 +34,7 @@ def valid_yaml():
 
 @pytest.fixture
 def invalid_yaml():
+    """Invalid Yaml Generator."""
     return """
     diode:
       config:
