@@ -3,9 +3,9 @@
 """Diode NAPALM Agent CLI."""
 
 import argparse
-import asyncio
 import logging
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from importlib.metadata import version
 
 import netboxlabs.diode.sdk.version as SdkVersion
@@ -22,44 +22,69 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-async def start_policy(cfg, client):
+def run_driver(info, config):
     """
-    Start the policy for the given configuration and client.
+    Run the device driver code for a single info item.
+
+    Args:
+    ----
+        info: Information data for the device.
+        config: Configuration data containing site information.
+
+    """
+    client = Client()
+    if info.driver is None:
+        logger.info("Driver not informed, discovering it")
+        info.driver = discover_device_driver(info)
+        if not info.driver:
+            raise Exception("Not able to discover device driver")
+
+    logger.info(f"Get driver '{info.driver}'")
+    np_driver = get_network_driver(info.driver)
+    logger.info(f"Getting information from '{info.hostname}'")
+    with np_driver(info.hostname, info.username, info.password, info.timeout, info.optional_args) as device:
+        data = {
+            "driver": info.driver,
+            "site": config.netbox.get("site", None),
+            "device": device.get_facts(),
+            "interface": device.get_interfaces(),
+            "interface_ip": device.get_interfaces_ip(),
+            "vlan": device.get_vlans()
+        }
+        client.ingest(data)
+
+
+def start_policy(cfg, max_workers):
+    """
+    Start the policy for the given configuration.
 
     Args:
     ----
         cfg: Configuration data for the policy.
-        client: Client instance for data ingestion.
+        max_workers: Maximum number of threads in the pool.
 
     """
-    for info in cfg.data:
-        if info.driver is None:
-            logger.info("Driver not informed, discovering it")
-            info.driver = discover_device_driver(info)
-            if not info.driver:
-                raise Exception("Not able to discover device driver")
-        logger.info(f"Get driver '{info.driver}'")
-        np_driver = get_network_driver(info.driver)
-        logger.info(f"Getting information from '{info.hostname}'")
-        with np_driver(info.hostname, info.username, info.password, info.timeout, info.optional_args) as device:
-            data = {
-                "driver": info.driver,
-                "site": cfg.config.netbox.get("site", None),
-                "device": device.get_facts(),
-                "interface": device.get_interfaces(),
-                "interface_ip": device.get_interfaces_ip(),
-                "vlan": device.get_vlans()
-            }
-            client.ingest(data)
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [
+            executor.submit(run_driver, info, cfg.config)
+            for info in cfg.data
+        ]
+
+        for future in as_completed(futures):
+            try:
+                future.result()
+            except Exception as e:
+                logger.error(f"Error in processing: {e}")
 
 
-async def start_agent(cfg):
+def start_agent(cfg, workers):
     """
     Start the diode client and execute policies.
 
     Args:
     ----
         cfg: Configuration data containing policies.
+        workers: Number of workers to be used in the thread pool.
 
     """
     client = Client()
@@ -67,7 +92,7 @@ async def start_agent(cfg):
                        api_key=cfg.config.api_key, tls_verify=cfg.config.tls_verify)
     for policy_name in cfg.policies:
         try:
-            await start_policy(cfg.policies.get(policy_name), client)
+            start_policy(cfg.policies.get(policy_name), workers)
         except Exception as e:
             raise Exception(f"Unable to start policy {policy_name}: {e}")
 
@@ -101,6 +126,14 @@ def main():
         help="File containing environment variables",
         type=str,
     )
+    parser.add_argument(
+        "-w",
+        "--workers",
+        metavar="N",
+        help="Number of workers to be used",
+        type=int,
+        default=2
+    )
     args = parser.parse_args()
 
     if hasattr(args, 'env') and args.env is not None:
@@ -110,7 +143,7 @@ def main():
 
     try:
         config = parse_config_file(args.config)
-        asyncio.run(start_agent(config))
+        start_agent(config, args.workers)
     except (KeyboardInterrupt, RuntimeError):
         pass
     except Exception as e:

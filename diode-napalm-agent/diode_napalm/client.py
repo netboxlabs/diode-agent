@@ -3,6 +3,7 @@
 """Diode SDK Client for NAPALM."""
 
 import logging
+import threading
 from typing import Optional
 
 from netboxlabs.diode.sdk import DiodeClient
@@ -32,6 +33,7 @@ class Client:
     """
 
     _instance = None
+    _lock = threading.Lock()
 
     def __new__(cls):
         """
@@ -43,12 +45,16 @@ class Client:
 
         """
         if cls._instance is None:
-            cls._instance = super().__new__(cls)
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = super().__new__(cls)
         return cls._instance
 
     def __init__(self):
         """Initialize the Client instance with no Diode client."""
-        self.diode_client = None
+        if not hasattr(self, '_initialized'):  # Prevent reinitialization
+            self.diode_client = None
+            self._initialized = True
 
     def init_client(
         self,
@@ -66,8 +72,9 @@ class Client:
             tls_verify (bool): Whether to verify TLS certificates (default is None).
 
         """
-        self.diode_client = DiodeClient(
-            target=target, app_name=APP_NAME, app_version=APP_VERSION, api_key=api_key, tls_verify=tls_verify)
+        with self._lock:
+            self.diode_client = DiodeClient(
+                target=target, app_name=APP_NAME, app_version=APP_VERSION, api_key=api_key, tls_verify=tls_verify)
 
     def ingest(self, data: dict):
         """
@@ -83,9 +90,12 @@ class Client:
 
         """
         if self.diode_client is None:
-            raise ValueError("Diode client undefined")
-        ret = self.diode_client.ingest(translate_data(data))
-        if not ret.errors:
+            raise ValueError("Diode client not initialized")
+
+        with self._lock:
+            ret = self.diode_client.ingest(translate_data(data))
+
+        if not len(ret.errors):
             logger.info("Successful ingestion")
         else:
-            logger.error(ret.errors)
+            logger.error(ret)
