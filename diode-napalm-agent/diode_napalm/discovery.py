@@ -32,11 +32,17 @@ def discover_device_driver(info: dict) -> str:
     for driver in supported_drivers:
         try:
             np_driver = get_network_driver(driver)
-            with np_driver(info.hostname, info.username, info.password, info.timeout, info.optional_args) as device:
+            with np_driver(
+                info.hostname,
+                info.username,
+                info.password,
+                info.timeout,
+                info.optional_args,
+            ) as device:
                 device_info = device.get_facts()
                 if device_info.get("serial_number", "Unknown").lower() == "unknown":
                     continue
                 return driver
         except Exception as e:
             logger.error(e)
-    return ''
+    return ""

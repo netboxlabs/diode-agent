@@ -4,7 +4,12 @@
 
 import pytest
 
-from diode_napalm.translate import translate_data, translate_device, translate_interface, translate_interface_ips
+from diode_napalm.translate import (
+    translate_data,
+    translate_device,
+    translate_interface,
+    translate_interface_ips,
+)
 
 
 @pytest.fixture
@@ -30,7 +35,7 @@ def sample_interface_info():
             "mtu": 1500,
             "mac_address": "00:1C:58:29:4A:71",
             "speed": 1000,
-            "description": "Uplink Interface"
+            "description": "Uplink Interface",
         }
     }
 
@@ -38,15 +43,7 @@ def sample_interface_info():
 @pytest.fixture
 def sample_interfaces_ip():
     """Sample interface IPs for testing."""
-    return {
-        "GigabitEthernet0/0": {
-            "ipv4": {
-                "192.0.2.1": {
-                    "prefix_length": 24
-                }
-            }
-        }
-    }
+    return {"GigabitEthernet0/0": {"ipv4": {"192.0.2.1": {"prefix_length": 24}}}}
 
 
 def test_translate_device(sample_device_info):
@@ -63,7 +60,8 @@ def test_translate_interface(sample_device_info, sample_interface_info):
     """Ensure interface translation is correct."""
     device = translate_device(sample_device_info)
     interface = translate_interface(
-        device, "GigabitEthernet0/0", sample_interface_info["GigabitEthernet0/0"])
+        device, "GigabitEthernet0/0", sample_interface_info["GigabitEthernet0/0"]
+    )
     assert interface.device.name == "router1"
     assert interface.name == "GigabitEthernet0/0"
     assert interface.enabled is True
@@ -73,26 +71,30 @@ def test_translate_interface(sample_device_info, sample_interface_info):
     assert interface.description == "Uplink Interface"
 
 
-def test_translate_interface_ips(sample_device_info, sample_interface_info, sample_interfaces_ip):
+def test_translate_interface_ips(
+    sample_device_info, sample_interface_info, sample_interfaces_ip
+):
     """Ensure interface IPs translation is correct."""
     device = translate_device(sample_device_info)
     interface = translate_interface(
-        device, "GigabitEthernet0/0", sample_interface_info["GigabitEthernet0/0"])
-    ip_entities = list(translate_interface_ips(
-        interface, sample_interfaces_ip))
+        device, "GigabitEthernet0/0", sample_interface_info["GigabitEthernet0/0"]
+    )
+    ip_entities = list(translate_interface_ips(interface, sample_interfaces_ip))
     assert len(ip_entities) == 2
     assert ip_entities[0].prefix.prefix == "192.0.2.0/24"
     assert ip_entities[1].ip_address.address == "192.0.2.1/24"
 
 
-def test_translate_data(sample_device_info, sample_interface_info, sample_interfaces_ip):
+def test_translate_data(
+    sample_device_info, sample_interface_info, sample_interfaces_ip
+):
     """Ensure data translation is correct."""
     data = {
         "device": sample_device_info,
         "interface": sample_interface_info,
         "interface_ip": sample_interfaces_ip,
         "driver": "ios",
-        "site": "New York"
+        "site": "New York",
     }
     entities = list(translate_data(data))
     assert len(entities) == 4

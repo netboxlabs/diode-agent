@@ -5,7 +5,15 @@
 import ipaddress
 from typing import Iterable
 
-from netboxlabs.diode.sdk.ingester import Device, DeviceType, Entity, Interface, IPAddress, Platform, Prefix
+from netboxlabs.diode.sdk.ingester import (
+    Device,
+    DeviceType,
+    Entity,
+    Interface,
+    IPAddress,
+    Platform,
+    Prefix,
+)
 
 
 def translate_device(device_info: dict) -> Device:
@@ -24,21 +32,21 @@ def translate_device(device_info: dict) -> Device:
     device = Device(
         name=device_info.get("hostname"),
         device_type=DeviceType(
-            model=device_info.get("model"),
-            manufacturer=device_info.get("vendor")
+            model=device_info.get("model"), manufacturer=device_info.get("vendor")
         ),
         platform=Platform(
-            name=device_info.get("driver"),
-            manufacturer=device_info.get("vendor")
+            name=device_info.get("driver"), manufacturer=device_info.get("vendor")
         ),
         serial=device_info.get("serial_number"),
         status="active",
-        site=device_info.get("site")
+        site=device_info.get("site"),
     )
     return device
 
 
-def translate_interface(device: Device, if_name: str, interface_info: dict) -> Interface:
+def translate_interface(
+    device: Device, if_name: str, interface_info: dict
+) -> Interface:
     """
     Translate interface information from NAPALM format to Diode SDK Interface entity.
 
@@ -61,12 +69,14 @@ def translate_interface(device: Device, if_name: str, interface_info: dict) -> I
         mtu=interface_info.get("mtu"),
         mac_address=interface_info.get("mac_address"),
         speed=int(interface_info.get("speed")),
-        description=interface_info.get("description")
+        description=interface_info.get("description"),
     )
     return interface
 
 
-def translate_interface_ips(interface: Interface, interfaces_ip: dict) -> Iterable[Entity]:
+def translate_interface_ips(
+    interface: Interface, interfaces_ip: dict
+) -> Iterable[Entity]:
     """
     Translate IP address and Prefixes information for an interface.
 
@@ -89,10 +99,20 @@ def translate_interface_ips(interface: Interface, interfaces_ip: dict) -> Iterab
                 for ip, details in ip_info.get(ip_version, {}).items():
                     ip_address = f"{ip}/{details.get('prefix_length', default_prefix)}"
                     network = ipaddress.ip_network(ip_address, strict=False)
-                    ip_entities.append(Entity(prefix=Prefix(
-                        prefix=str(network), site=interface.device.site)))
-                    ip_entities.append(Entity(ip_address=IPAddress(
-                        address=ip_address, interface=interface)))
+                    ip_entities.append(
+                        Entity(
+                            prefix=Prefix(
+                                prefix=str(network), site=interface.device.site
+                            )
+                        )
+                    )
+                    ip_entities.append(
+                        Entity(
+                            ip_address=IPAddress(
+                                address=ip_address, interface=interface
+                            )
+                        )
+                    )
 
     return ip_entities
 
@@ -124,10 +144,8 @@ def translate_data(data: dict) -> Iterable[Entity]:
         interface_list = device_info.get("interface_list", [])
         for if_name, interface_info in interfaces.items():
             if if_name in interface_list:
-                interface = translate_interface(
-                    device, if_name, interface_info)
+                interface = translate_interface(device, if_name, interface_info)
                 entities.append(Entity(interface=interface))
-                entities.extend(translate_interface_ips(
-                    interface, interfaces_ip))
+                entities.extend(translate_interface_ips(interface, interfaces_ip))
 
     return entities

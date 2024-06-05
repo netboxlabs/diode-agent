@@ -52,15 +52,12 @@ class Client:
 
     def __init__(self):
         """Initialize the Client instance with no Diode client."""
-        if not hasattr(self, '_initialized'):  # Prevent reinitialization
+        if not hasattr(self, "_initialized"):  # Prevent reinitialization
             self.diode_client = None
             self._initialized = True
 
     def init_client(
-        self,
-        target: str,
-        api_key: Optional[str] = None,
-        tls_verify: bool = None
+        self, target: str, api_key: Optional[str] = None, tls_verify: bool = None
     ):
         """
         Initialize the Diode client with the specified target, API key, and TLS verification.
@@ -74,7 +71,12 @@ class Client:
         """
         with self._lock:
             self.diode_client = DiodeClient(
-                target=target, app_name=APP_NAME, app_version=APP_VERSION, api_key=api_key, tls_verify=tls_verify)
+                target=target,
+                app_name=APP_NAME,
+                app_version=APP_VERSION,
+                api_key=api_key,
+                tls_verify=tls_verify,
+            )
 
     def ingest(self, data: dict):
         """

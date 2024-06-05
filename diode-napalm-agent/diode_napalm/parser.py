@@ -19,14 +19,14 @@ class ParseException(Exception):
 class Napalm(BaseModel):
     """Model for NAPALM configuration."""
 
-    driver: Optional[str] = Field(
-        default=None, description="Driver name, optional")
+    driver: Optional[str] = Field(default=None, description="Driver name, optional")
     hostname: str
     username: str
     password: str
     timeout: int = 60
     optional_args: Optional[Dict[str, Any]] = Field(
-        default=None, description="Optional arguments")
+        default=None, description="Optional arguments"
+    )
 
 
 class DiscoveryConfig(BaseModel):

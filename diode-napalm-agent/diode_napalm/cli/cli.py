@@ -42,14 +42,16 @@ def run_driver(info, config):
     logger.info(f"Get driver '{info.driver}'")
     np_driver = get_network_driver(info.driver)
     logger.info(f"Getting information from '{info.hostname}'")
-    with np_driver(info.hostname, info.username, info.password, info.timeout, info.optional_args) as device:
+    with np_driver(
+        info.hostname, info.username, info.password, info.timeout, info.optional_args
+    ) as device:
         data = {
             "driver": info.driver,
             "site": config.netbox.get("site", None),
             "device": device.get_facts(),
             "interface": device.get_interfaces(),
             "interface_ip": device.get_interfaces_ip(),
-            "vlan": device.get_vlans()
+            "vlan": device.get_vlans(),
         }
         client.ingest(data)
 
@@ -65,10 +67,7 @@ def start_policy(cfg, max_workers):
 
     """
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [
-            executor.submit(run_driver, info, cfg.config)
-            for info in cfg.data
-        ]
+        futures = [executor.submit(run_driver, info, cfg.config) for info in cfg.data]
 
         for future in as_completed(futures):
             try:
@@ -88,8 +87,11 @@ def start_agent(cfg, workers):
 
     """
     client = Client()
-    client.init_client(target=cfg.config.target,
-                       api_key=cfg.config.api_key, tls_verify=cfg.config.tls_verify)
+    client.init_client(
+        target=cfg.config.target,
+        api_key=cfg.config.api_key,
+        tls_verify=cfg.config.tls_verify,
+    )
     for policy_name in cfg.policies:
         try:
             start_policy(cfg.policies.get(policy_name), workers)
@@ -110,14 +112,15 @@ def main():
         action="version",
         version=f"Diode Agent version: {version_semver()}, NAPALM version: {version('napalm')}, "
         f"Diode SDK version: {SdkVersion.version_semver()}",
-        help="Display Diode Agent, NAPALM and Diode SDK versions"
+        help="Display Diode Agent, NAPALM and Diode SDK versions",
     )
     parser.add_argument(
         "-c",
         "--config",
         metavar="config.yaml",
         help="Agent yaml configuration file",
-        type=str, required=True
+        type=str,
+        required=True,
     )
     parser.add_argument(
         "-e",
@@ -132,14 +135,15 @@ def main():
         metavar="N",
         help="Number of workers to be used",
         type=int,
-        default=2
+        default=2,
     )
     args = parser.parse_args()
 
-    if hasattr(args, 'env') and args.env is not None:
+    if hasattr(args, "env") and args.env is not None:
         if not load_dotenv(args.env, override=True):
             sys.exit(
-                f"ERROR: : Unable to load environment variables from file {args.env}")
+                f"ERROR: : Unable to load environment variables from file {args.env}"
+            )
 
     try:
         config = parse_config_file(args.config)
@@ -150,5 +154,5 @@ def main():
         sys.exit(f"ERROR: Unable to start agent: {e}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
