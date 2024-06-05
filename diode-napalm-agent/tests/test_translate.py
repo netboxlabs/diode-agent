@@ -1,6 +1,10 @@
+#!/usr/bin/env python
+# Copyright 2024 NetBox Labs Inc
+"""NetBox Labs - Translate Unit Tests."""
+
 import pytest
-from diode_napalm.translate import translate_device, translate_interface, translate_interface_ips, translate_data
-from netboxlabs.diode.sdk.ingester import Device, DeviceType, Entity, Interface, IPAddress, Platform, Prefix
+
+from diode_napalm.translate import translate_data, translate_device, translate_interface, translate_interface_ips
 
 
 @pytest.fixture

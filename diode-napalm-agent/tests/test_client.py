@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # Copyright 2024 NetBox Labs Inc
-"""Unit tests for Client class in client.py."""
+"""NetBox Labs - Client Unit Tests."""
+
+from unittest.mock import MagicMock, patch
 
 import pytest
-from unittest.mock import patch, MagicMock
 
 from diode_napalm.client import Client
 from diode_napalm.translate import translate_data
