@@ -9,9 +9,29 @@ This is a basic set of instructions on how to get started using Diode on your lo
 ## Requirements
 
 - Napalm version 5.0.0
-- Diode Python SDK 0.0.4
+- Diode Python SDK 0.1.0
 - Pydantic 2.7.1
 - Python-dotenv 1.0.1
+
+## Usage
+
+Firstly, you should clone the repository and install the agent 
+```bash
+  git clone https://github.com/netboxlabs/diode-agent.git
+  cd diode-agent/
+  pip install ./diode-napalm-agent --no-cache-dir
+```
+
+Then, you can run `diode-napalm-agent`
+
+```
+usage: diode-napalm-agent [-h] [-V] -c config.yaml [-e .env] [-w N]
+```
+
+Simple example:
+```bash
+  diode-napalm-agent -c config.yaml
+```
 
 ### Create a `config.yml` for your discovery
 
@@ -31,15 +51,15 @@ diode:
         netbox:
           site: New York NY
       data:
+        - hostname: 192.168.0.32
+          username: ${USER}
+          password: admin
         - driver: eos
           hostname: 127.0.0.1
           username: admin
           password: ${ARISTA_PASSWORD}
           optional_args:
             enable_password: ${ARISTA_PASSWORD}
-        - hostname: 192.168.0.32
-          username: ${USER}
-          password: admin
 ```
 
 The detailed information for `optional_args` can be found in NAPALM [documentation](https://napalm.readthedocs.io/en/latest/support/#optional-arguments).
