@@ -47,7 +47,6 @@ class DiodeConfig(BaseModel):
 
     target: str
     api_key: str
-    tls_verify: bool
 
 
 class Diode(BaseModel):

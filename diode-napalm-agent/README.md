@@ -42,9 +42,8 @@ You can pass environment variables e.g. `${ENV}`, so they will be resolved at pa
 ```yaml
 diode:
   config:
-    target: localhost:8081
+    target: grpc://localhost:8081
     api_key: ${API_KEY}
-    tls_verify: false
   policies:  
     discovery_1:
       config:

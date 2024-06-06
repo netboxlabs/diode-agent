@@ -56,9 +56,7 @@ class Client:
             self.diode_client = None
             self._initialized = True
 
-    def init_client(
-        self, target: str, api_key: Optional[str] = None, tls_verify: bool = None
-    ):
+    def init_client(self, target: str, api_key: Optional[str] = None):
         """
         Initialize the Diode client with the specified target, API key, and TLS verification.
 
@@ -75,7 +73,6 @@ class Client:
                 app_name=APP_NAME,
                 app_version=APP_VERSION,
                 api_key=api_key,
-                tls_verify=tls_verify,
             )
 
     def ingest(self, data: dict):

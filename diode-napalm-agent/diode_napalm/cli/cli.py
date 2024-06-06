@@ -87,11 +87,7 @@ def start_agent(cfg, workers):
 
     """
     client = Client()
-    client.init_client(
-        target=cfg.config.target,
-        api_key=cfg.config.api_key,
-        tls_verify=cfg.config.tls_verify,
-    )
+    client.init_client(target=cfg.config.target, api_key=cfg.config.api_key)
     for policy_name in cfg.policies:
         try:
             start_policy(cfg.policies.get(policy_name), workers)
