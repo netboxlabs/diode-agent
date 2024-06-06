@@ -99,6 +99,7 @@ def test_ingest_failure(mock_diode_client_class, sample_data):
 
 def test_ingest_without_initialization():
     """Test ingestion without client initialization raises ValueError."""
+    Client._instance = None  # Reset the Client singleton instance
     client = Client()
     with pytest.raises(ValueError, match="Diode client not initialized"):
         client.ingest({})
