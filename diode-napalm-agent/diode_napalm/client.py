@@ -95,9 +95,9 @@ class Client:
             raise ValueError("Diode client not initialized")
 
         with self._lock:
-            ret = self.diode_client.ingest(translate_data(data))
+            response = self.diode_client.ingest(translate_data(data))
 
-        if not len(ret.errors):
-            logger.info("Successful ingestion")
+        if response.errors:
+            logger.error(f"ERROR: {response.errors}")
         else:
-            logger.error(ret)
+            logger.info("Successful ingestion")
