@@ -44,16 +44,13 @@ def sample_data():
 def test_init_client(mock_diode_client_class, mock_version):
     """Test the initialization of the Diode client."""
     client = Client()
-    client.init_client(
-        target="https://example.com", api_key="dummy_api_key", tls_verify=True
-    )
+    client.init_client(target="https://example.com", api_key="dummy_api_key")
 
     mock_diode_client_class.assert_called_once_with(
         target="https://example.com",
         app_name="diode-napalm-agent",
         app_version=mock_version(),
         api_key="dummy_api_key",
-        tls_verify=True,
     )
 
 
@@ -61,9 +58,7 @@ def test_init_client(mock_diode_client_class, mock_version):
 def test_ingest_success(mock_diode_client_class, sample_data):
     """Test successful data ingestion."""
     client = Client()
-    client.init_client(
-        target="https://example.com", api_key="dummy_api_key", tls_verify=True
-    )
+    client.init_client(target="https://example.com", api_key="dummy_api_key")
 
     mock_diode_instance = mock_diode_client_class.return_value
     mock_diode_instance.ingest.return_value.errors = []
@@ -80,9 +75,7 @@ def test_ingest_success(mock_diode_client_class, sample_data):
 def test_ingest_failure(mock_diode_client_class, sample_data):
     """Test data ingestion with errors."""
     client = Client()
-    client.init_client(
-        target="https://example.com", api_key="dummy_api_key", tls_verify=True
-    )
+    client.init_client(target="https://example.com", api_key="dummy_api_key")
 
     mock_diode_instance = mock_diode_client_class.return_value
     mock_diode_instance.ingest.return_value.errors = ["Error1", "Error2"]
