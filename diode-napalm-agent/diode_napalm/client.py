@@ -64,7 +64,6 @@ class Client:
         ----
             target (str): The target endpoint for the Diode client.
             api_key (Optional[str]): The API key for authentication (default is None).
-            tls_verify (bool): Whether to verify TLS certificates (default is None).
 
         """
         with self._lock:

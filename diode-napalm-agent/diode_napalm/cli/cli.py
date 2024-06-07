@@ -14,7 +14,7 @@ from napalm import get_network_driver
 
 from diode_napalm.client import Client
 from diode_napalm.discovery import discover_device_driver
-from diode_napalm.parser import parse_config_file, Diode, DiodeConfig, Policy, Napalm
+from diode_napalm.parser import Diode, DiodeConfig, Napalm, Policy, parse_config_file
 from diode_napalm.version import version_semver
 
 # Set up logging
@@ -32,7 +32,6 @@ def run_driver(info: Napalm, config: DiodeConfig):
         config: Configuration data containing site information.
 
     """
-    client = Client()
     if info.driver is None:
         logger.info("Driver not informed, discovering it")
         info.driver = discover_device_driver(info)
@@ -53,7 +52,7 @@ def run_driver(info: Napalm, config: DiodeConfig):
             "interface_ip": device.get_interfaces_ip(),
             "vlan": device.get_vlans(),
         }
-        client.ingest(data)
+        Client().ingest(data)
 
 
 def start_policy(cfg: Policy, max_workers: int):
