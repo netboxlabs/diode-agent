@@ -54,6 +54,26 @@ def mock_start_agent():
         yield mock
 
 
+def test_main_keyboard_interrupt(mock_parse_args, mock_parse_config_file):
+    """
+    Test handling of KeyboardInterrupt in main.
+
+    Args:
+    ----
+        mock_parse_args: Mocked parse_args function.
+        mock_parse_config_file: Mocked parse_config_file function.
+
+    """
+    mock_parse_args.return_value = MagicMock(config="config.yaml", env=None, workers=2)
+    mock_parse_config_file.side_effect = KeyboardInterrupt
+
+    with patch.object(sys, "exit", side_effect=Exception("Test Exit")):
+        try:
+            main()
+        except Exception as e:
+            assert str(e) == "Test Exit"
+
+
 def test_main_with_config_and_env(
     mock_parse_args, mock_load_dotenv, mock_parse_config_file, mock_start_agent
 ):
@@ -130,4 +150,72 @@ def test_main_start_agent_failure(
     mock_start_agent.assert_called_once()
     mock_exit.assert_called_once_with(
         "ERROR: Unable to start agent: Test Start Agent Failure"
+    )
+
+
+def test_main_no_config_file(mock_parse_args):
+    """
+    Test running the CLI without a configuration file.
+
+    Args:
+    ----
+        mock_parse_args: Mocked parse_args function.
+
+    """
+    mock_parse_args.return_value = MagicMock(config=None, env=None, workers=2)
+
+    with patch.object(sys, "exit", side_effect=Exception("Test Exit")) as mock_exit:
+        try:
+            main()
+        except Exception as e:
+            print(f"Caught exception: {str(e)}")  # Debug statement
+            assert str(e) == "Test Exit"
+
+    mock_exit.assert_called_once()
+
+
+def test_main_missing_policy(mock_parse_args, mock_parse_config_file):
+    """
+    Test handling of missing policy in start_agent.
+
+    Args:
+    ----
+        mock_parse_args: Mocked parse_args function.
+        mock_parse_config_file: Mocked parse_config_file function.
+
+    """
+    mock_parse_args.return_value = MagicMock(config="config.yaml", env=None, workers=2)
+    mock_cfg = MagicMock()
+    mock_cfg.policies = {"policy1": None}  # Simulating a missing policy
+    mock_parse_config_file.return_value = mock_cfg
+
+    with patch.object(sys, "exit", side_effect=Exception("Test Exit")):
+        try:
+            main()
+        except Exception as e:
+            assert str(e) == "Test Exit"
+
+
+def test_main_load_dotenv_exception(mock_parse_args):
+    """
+    Test CLI failure when an exception occurs while loading environment variables.
+
+    Args:
+    ----
+        mock_parse_args: Mocked parse_args function.
+
+    """
+    mock_parse_args.return_value = MagicMock(
+        config="config.yaml", env=".env", workers=2
+    )
+
+    with patch("dotenv.load_dotenv", side_effect=Exception("Load dotenv error")):
+        with patch.object(sys, "exit", side_effect=Exception("Test Exit")) as mock_exit:
+            try:
+                main()
+            except Exception as e:
+                assert str(e) == "Test Exit"
+
+    mock_exit.assert_called_once_with(
+        "ERROR: : Unable to load environment variables from file .env"
     )
