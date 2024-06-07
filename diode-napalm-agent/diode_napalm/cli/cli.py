@@ -14,7 +14,7 @@ from napalm import get_network_driver
 
 from diode_napalm.client import Client
 from diode_napalm.discovery import discover_device_driver
-from diode_napalm.parser import parse_config_file
+from diode_napalm.parser import parse_config_file, Diode, DiodeConfig, Policy, Napalm
 from diode_napalm.version import version_semver
 
 # Set up logging
@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def run_driver(info, config):
+def run_driver(info: Napalm, config: DiodeConfig):
     """
     Run the device driver code for a single info item.
 
@@ -56,7 +56,7 @@ def run_driver(info, config):
         client.ingest(data)
 
 
-def start_policy(cfg, max_workers):
+def start_policy(cfg: Policy, max_workers: int):
     """
     Start the policy for the given configuration.
 
@@ -76,7 +76,7 @@ def start_policy(cfg, max_workers):
                 logger.error(f"Error in processing: {e}")
 
 
-def start_agent(cfg, workers):
+def start_agent(cfg: Diode, workers: int):
     """
     Start the diode client and execute policies.
 

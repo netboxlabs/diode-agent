@@ -17,7 +17,7 @@ def mock_parse_args():
 
     Mocks the parse_args method to control CLI arguments.
     """
-    with patch("diode_napalm.cli.argparse.ArgumentParser.parse_args") as mock:
+    with patch("diode_napalm.cli.cli.argparse.ArgumentParser.parse_args") as mock:
         yield mock
 
 
@@ -28,7 +28,7 @@ def mock_load_dotenv():
 
     Mocks the load_dotenv method to simulate loading environment variables.
     """
-    with patch("diode_napalm.cli.load_dotenv") as mock:
+    with patch("diode_napalm.cli.cli.load_dotenv") as mock:
         yield mock
 
 
@@ -39,7 +39,7 @@ def mock_parse_config_file():
 
     Mocks the parse_config_file method to simulate loading a configuration file.
     """
-    with patch("diode_napalm.cli.parse_config_file") as mock:
+    with patch("diode_napalm.cli.cli.parse_config_file") as mock:
         yield mock
 
 
@@ -50,7 +50,7 @@ def mock_start_agent():
 
     Mocks the start_agent method to control its behavior during tests.
     """
-    with patch("diode_napalm.cli.start_agent") as mock:
+    with patch("diode_napalm.cli.cli.start_agent") as mock:
         yield mock
 
 

@@ -9,17 +9,17 @@ This is a basic set of instructions on how to get started using Diode on your lo
 ## Requirements
 
 - Napalm version 5.0.0
-- Diode Python SDK 0.1.0
-- Pydantic 2.7.1
-- Python-dotenv 1.0.1
+- Netboxlabs Diode SDK version 0.1.0
+- Pydantic version 2.7.1
+- Python-dotenv version 1.0.1
 
 ## Usage
 
 Firstly, you should clone the repository and install the agent 
 ```bash
-  git clone https://github.com/netboxlabs/diode-agent.git
-  cd diode-agent/
-  pip install ./diode-napalm-agent --no-cache-dir
+git clone https://github.com/netboxlabs/diode-agent.git
+cd diode-agent/
+pip install ./diode-napalm-agent --no-cache-dir
 ```
 
 Then, you can run `diode-napalm-agent`
@@ -30,7 +30,7 @@ usage: diode-napalm-agent [-h] [-V] -c config.yaml [-e .env] [-w N]
 
 Simple example:
 ```bash
-  diode-napalm-agent -c config.yaml
+diode-napalm-agent -c config.yaml
 ```
 
 ### Create a `config.yml` for your discovery
