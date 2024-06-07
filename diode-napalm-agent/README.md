@@ -8,10 +8,10 @@ This is a basic set of instructions on how to get started using Diode on your lo
 
 ## Requirements
 
-- Napalm version 5.0.0
-- Netboxlabs Diode SDK version 0.1.0
-- Pydantic version 2.7.1
-- Python-dotenv version 1.0.1
+- napalm==5.0.0
+- netboxlabs-diode-sdk==0.1.0
+- pydantic==2.7.1
+- python-dotenv==1.0.1
 
 ## Usage
 
