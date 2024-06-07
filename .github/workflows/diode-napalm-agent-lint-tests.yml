@@ -10,15 +10,23 @@ on:
     paths:
       - "diode-napalm-agent/**"
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+env:
+  AGENT_DIR: diode-napalm-agent
+
 jobs:
   tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     strategy:
       matrix:
         python-version: [ "3.9", "3.10", "3.11", "3.12" ]
     defaults:
       run:
-        working-directory: diode-napalm-agent
+        working-directory: ${{ env.AGENT_DIR }}
     steps:
     - uses: actions/checkout@v4
     - name: Setup Python
@@ -40,10 +48,10 @@ jobs:
     - name: Pytest coverage comment
       uses: MishaKav/pytest-coverage-comment@main
       with:
-        pytest-coverage-path: ./pytest-coverage.txt
-        junitxml-path: ./pytest.xml
+        pytest-coverage-path: ${{ env.AGENT_DIR }}/pytest-coverage.txt
+        junitxml-path: ${{ env.AGENT_DIR }}/pytest.xml
 
     - name: Lint with Ruff
       run: |
-        ruff --output-format=github diode_napalm/ tests/
+        ruff check --output-format=github diode_napalm/ tests/
       continue-on-error: true
