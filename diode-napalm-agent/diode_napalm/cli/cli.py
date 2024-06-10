@@ -14,7 +14,13 @@ from napalm import get_network_driver
 
 from diode_napalm.client import Client
 from diode_napalm.discovery import discover_device_driver
-from diode_napalm.parser import Diode, DiodeConfig, Napalm, Policy, parse_config_file
+from diode_napalm.parser import (
+    Diode,
+    DiscoveryConfig,
+    Napalm,
+    Policy,
+    parse_config_file,
+)
 from diode_napalm.version import version_semver
 
 # Set up logging
@@ -22,7 +28,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def run_driver(info: Napalm, config: DiodeConfig):
+def run_driver(info: Napalm, config: DiscoveryConfig):
     """
     Run the device driver code for a single info item.
 
