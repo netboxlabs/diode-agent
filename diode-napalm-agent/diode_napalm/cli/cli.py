@@ -58,7 +58,7 @@ def run_driver(info: Napalm, config: DiscoveryConfig):
             "interface_ip": device.get_interfaces_ip(),
             "vlan": device.get_vlans(),
         }
-        Client().ingest(data)
+        Client().ingest(info.hostname, data)
 
 
 def start_policy(cfg: Policy, max_workers: int):

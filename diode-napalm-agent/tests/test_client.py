@@ -62,11 +62,12 @@ def test_ingest_success(mock_diode_client_class, sample_data):
 
     mock_diode_instance = mock_diode_client_class.return_value
     mock_diode_instance.ingest.return_value.errors = []
+    hostname = sample_data["device"]["hostname"]
 
     with patch(
         "diode_napalm.client.translate_data", return_value=translate_data(sample_data)
     ) as mock_translate_data:
-        client.ingest(sample_data)
+        client.ingest(hostname, sample_data)
         mock_translate_data.assert_called_once_with(sample_data)
         mock_diode_instance.ingest.assert_called_once()
 
@@ -79,11 +80,12 @@ def test_ingest_failure(mock_diode_client_class, sample_data):
 
     mock_diode_instance = mock_diode_client_class.return_value
     mock_diode_instance.ingest.return_value.errors = ["Error1", "Error2"]
+    hostname = sample_data["device"]["hostname"]
 
     with patch(
         "diode_napalm.client.translate_data", return_value=translate_data(sample_data)
     ) as mock_translate_data:
-        client.ingest(sample_data)
+        client.ingest(hostname, sample_data)
         mock_translate_data.assert_called_once_with(sample_data)
         mock_diode_instance.ingest.assert_called_once()
 
@@ -95,4 +97,4 @@ def test_ingest_without_initialization():
     Client._instance = None  # Reset the Client singleton instance
     client = Client()
     with pytest.raises(ValueError, match="Diode client not initialized"):
-        client.ingest({})
+        client.ingest("", {})

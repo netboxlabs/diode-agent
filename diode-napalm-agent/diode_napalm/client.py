@@ -73,7 +73,7 @@ class Client:
                 api_key=api_key,
             )
 
-    def ingest(self, data: dict):
+    def ingest(self, hostname: str, data: dict):
         """
         Ingest data using the Diode client after translating it.
 
@@ -93,6 +93,6 @@ class Client:
             response = self.diode_client.ingest(translate_data(data))
 
         if response.errors:
-            logger.error(f"ERROR: {response.errors}")
+            logger.error(f"ERROR ingestion failed for {hostname} : {response.errors}")
         else:
-            logger.info("Successful ingestion")
+            logger.info(f"Successful ingestion for {hostname}")
