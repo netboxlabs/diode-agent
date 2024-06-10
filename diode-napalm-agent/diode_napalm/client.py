@@ -52,9 +52,8 @@ class Client:
 
     def __init__(self):
         """Initialize the Client instance with no Diode client."""
-        if not hasattr(self, "_initialized"):  # Prevent reinitialization
+        if not hasattr(self, "diode_client"):  # Prevent reinitialization
             self.diode_client = None
-            self._initialized = True
 
     def init_client(self, target: str, api_key: Optional[str] = None):
         """
