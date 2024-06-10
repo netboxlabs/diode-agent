@@ -61,12 +61,13 @@ def run_driver(info: Napalm, config: DiscoveryConfig):
         Client().ingest(info.hostname, data)
 
 
-def start_policy(cfg: Policy, max_workers: int):
+def start_policy(name: str, cfg: Policy, max_workers: int):
     """
     Start the policy for the given configuration.
 
     Args:
     ----
+        name: Policy name
         cfg: Configuration data for the policy.
         max_workers: Maximum number of threads in the pool.
 
@@ -78,7 +79,7 @@ def start_policy(cfg: Policy, max_workers: int):
             try:
                 future.result()
             except Exception as e:
-                logger.error(f"Error in processing: {e}")
+                logger.error(f"ERROR: Error in processing for policy {name}: {e}")
 
 
 def start_agent(cfg: Diode, workers: int):
@@ -94,10 +95,7 @@ def start_agent(cfg: Diode, workers: int):
     client = Client()
     client.init_client(target=cfg.config.target, api_key=cfg.config.api_key)
     for policy_name in cfg.policies:
-        try:
-            start_policy(cfg.policies.get(policy_name), workers)
-        except Exception as e:
-            raise Exception(f"Unable to start policy {policy_name}: {e}")
+        start_policy(policy_name, cfg.policies.get(policy_name), workers)
 
 
 def main():

@@ -100,13 +100,13 @@ def mock_thread_pool_executor():
 
 
 @pytest.fixture
-def mock_run_driver():
+def mock_as_completed():
     """
-    Fixture to mock the run_driver function.
+    Fixture to mock the as_completed function.
 
-    Mocks the run_driver function to control its behavior during tests.
+    Mocks the as_completed function to control its behavior during tests.
     """
-    with patch("diode_napalm.cli.cli.run_driver") as mock:
+    with patch("diode_napalm.cli.cli.as_completed") as mock:
         yield mock
 
 
@@ -277,6 +277,33 @@ def test_main_load_dotenv_exception(mock_parse_args):
     )
 
 
+def test_run_driver_exception(mock_discover_device_driver):
+    """
+    Test run_driver function when the device driver is not discovered.
+
+    Args:
+    ----
+        mock_discover_device_driver: Mocked discover_device_driver function.
+
+    """
+    info = Napalm(
+        driver=None,
+        hostname="test_host",
+        username="user",
+        password="pass",
+        timeout=10,
+        optional_args={},
+    )
+    config = DiscoveryConfig(netbox={"site": "test_site"})
+
+    mock_discover_device_driver.return_value = None
+
+    with pytest.raises(Exception) as excinfo:
+        run_driver(info, config)
+
+    assert str(excinfo.value) == "Not able to discover device driver"
+
+
 def test_run_driver_no_driver(
     mock_client, mock_get_network_driver, mock_discover_device_driver
 ):
@@ -346,15 +373,14 @@ def test_run_driver_with_driver(
     mock_client().ingest.assert_called_once()
 
 
-def test_start_policy(mock_client, mock_run_driver, mock_thread_pool_executor):
+def test_start_policy(mock_thread_pool_executor, mock_as_completed):
     """
     Test start_policy function with different configurations.
 
     Args:
     ----
-        mock_client: Mocked Client class.
-        mock_run_driver: Mocked run_driver function.
         mock_thread_pool_executor: Mocked ThreadPoolExecutor class.
+        mock_as_completed: Mocked as_completed funtion.
 
     """
     cfg = Policy(
@@ -377,8 +403,8 @@ def test_start_policy(mock_client, mock_run_driver, mock_thread_pool_executor):
     mock_executor = MagicMock()
     mock_executor.submit.return_value = mock_future
     mock_thread_pool_executor.return_value = mock_executor
+    mock_as_completed.return_value = [mock_future]
 
-    with patch("diode_napalm.cli.cli.as_completed", return_value=[mock_future]):
-        start_policy(cfg, max_workers)
+    start_policy("policy", cfg, max_workers)
 
-        mock_thread_pool_executor.assert_called_once_with(max_workers=2)
+    mock_thread_pool_executor.assert_called_once_with(max_workers=2)
