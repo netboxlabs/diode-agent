@@ -79,6 +79,7 @@ class Client:
 
         Args:
         ----
+            hostname (str): The device hostname.
             data (dict): The data to be ingested.
 
         Raises:
