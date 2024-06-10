@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from diode_napalm.cli.cli import main, run_driver, start_policy
+from diode_napalm.cli.cli import main, run_driver, start_agent, start_policy
 from diode_napalm.parser import DiscoveryConfig, Napalm, Policy
 
 
@@ -52,6 +52,17 @@ def mock_start_agent():
     Mocks the start_agent method to control its behavior during tests.
     """
     with patch("diode_napalm.cli.cli.start_agent") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_start_policy():
+    """
+    Fixture to mock the start_policy function.
+
+    Mocks the start_policy method to control its behavior during tests.
+    """
+    with patch("diode_napalm.cli.cli.start_policy") as mock:
         yield mock
 
 
@@ -371,6 +382,38 @@ def test_run_driver_with_driver(
     mock_get_network_driver.assert_called_once_with("existing_driver")
     mock_np_driver.assert_called_once_with("test_host", "user", "pass", 10, {})
     mock_client().ingest.assert_called_once()
+
+
+def test_start_agent(mock_client, mock_start_policy):
+    """
+    Test the start_agent function to ensure it initializes the client and starts policies.
+
+    Args:
+    ----
+        mock_client: Mocked Client class.
+        mock_start_policy: Mocked start_policy function.
+
+    """
+    # Mock the configuration data
+    cfg = MagicMock()
+    cfg.config.target = "http://example.com"
+    cfg.config.api_key = "dummy_api_key"
+    cfg.policies = {"policy1": MagicMock(), "policy2": MagicMock()}
+
+    workers = 3
+
+    # Call the start_agent function
+    start_agent(cfg, workers)
+
+    # Verify that the client was initialized correctly
+    mock_client().init_client.assert_called_once_with(
+        target="http://example.com", api_key="dummy_api_key"
+    )
+
+    # Verify that start_policy was called for each policy
+    mock_start_policy.assert_any_call("policy1", cfg.policies["policy1"], workers)
+    mock_start_policy.assert_any_call("policy2", cfg.policies["policy2"], workers)
+    assert mock_start_policy.call_count == 2
 
 
 def test_start_policy(mock_thread_pool_executor, mock_as_completed):
