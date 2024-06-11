@@ -454,3 +454,42 @@ def test_start_policy(mock_thread_pool_executor, mock_as_completed):
     start_policy("policy", cfg, max_workers)
 
     mock_thread_pool_executor.assert_called_once_with(max_workers=2)
+    mock_future.result.assert_called_once()
+
+
+def test_start_policy_exception(mock_thread_pool_executor, mock_as_completed):
+    """
+    Test start_policy function with different configurations.
+
+    Args:
+    ----
+        mock_thread_pool_executor: Mocked ThreadPoolExecutor class.
+        mock_as_completed: Mocked as_completed funtion.
+
+    """
+    cfg = Policy(
+        config=DiscoveryConfig(netbox={"site": "test_site"}),
+        data=[
+            Napalm(
+                driver="driver",
+                hostname="host",
+                username="user",
+                password="pass",
+                timeout=10,
+                optional_args={},
+            )
+        ],
+    )
+    max_workers = 2
+
+    mock_future = MagicMock()
+    mock_future.result.side_effect = Exception("Test exception")
+    mock_executor = MagicMock()
+    mock_executor.submit.return_value = mock_future
+    mock_thread_pool_executor.return_value = mock_executor
+    mock_as_completed.return_value = [mock_future]
+
+    start_policy("policy", cfg, max_workers)
+
+    mock_thread_pool_executor.assert_called_once_with(max_workers=2)
+    mock_future.result.assert_called_once()

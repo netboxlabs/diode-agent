@@ -86,6 +86,18 @@ def test_parse_config_file(mock_file, valid_yaml):
         mock_file.assert_called_once_with(Path("fake_path.yaml"))
 
 
+@patch("builtins.open", new_callable=mock_open, read_data="invalid_yaml")
+def test_parse_config_file_parse_exception(mock_file):
+    """Ensure a ParseException in parse_config is propagated."""
+    with patch(
+        "diode_napalm.parser.parse_config",
+        side_effect=ParseException("Test Parse Exception"),
+    ):
+        with pytest.raises(ParseException):
+            parse_config_file(Path("fake_path.yaml"))
+        mock_file.assert_called_once_with(Path("fake_path.yaml"))
+
+
 @patch.dict(os.environ, {"API_KEY": "env_api_key"})
 def test_resolve_env_vars():
     """Ensure environment variables are resolved correctly."""
