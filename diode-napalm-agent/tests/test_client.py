@@ -2,7 +2,7 @@
 # Copyright 2024 NetBox Labs Inc
 """NetBox Labs - Client Unit Tests."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -39,9 +39,21 @@ def sample_data():
     }
 
 
-@patch("diode_napalm.client.version_semver", return_value="0.0.0")
-@patch("diode_napalm.client.DiodeClient")
-def test_init_client(mock_diode_client_class, mock_version):
+@pytest.fixture
+def mock_version_semver():
+    """Mock the version_semver function."""
+    with patch("diode_napalm.client.version_semver", return_value="0.0.0") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_diode_client_class():
+    """Mock the DiodeClient class."""
+    with patch("diode_napalm.client.DiodeClient") as mock:
+        yield mock
+
+
+def test_init_client(mock_diode_client_class, mock_version_semver):
     """Test the initialization of the Diode client."""
     client = Client()
     client.init_client(target="https://example.com", api_key="dummy_api_key")
@@ -49,12 +61,11 @@ def test_init_client(mock_diode_client_class, mock_version):
     mock_diode_client_class.assert_called_once_with(
         target="https://example.com",
         app_name="diode-napalm-agent",
-        app_version=mock_version(),
+        app_version=mock_version_semver(),
         api_key="dummy_api_key",
     )
 
 
-@patch("diode_napalm.client.DiodeClient")
 def test_ingest_success(mock_diode_client_class, sample_data):
     """Test successful data ingestion."""
     client = Client()
@@ -72,7 +83,6 @@ def test_ingest_success(mock_diode_client_class, sample_data):
         mock_diode_instance.ingest.assert_called_once()
 
 
-@patch("diode_napalm.client.DiodeClient")
 def test_ingest_failure(mock_diode_client_class, sample_data):
     """Test data ingestion with errors."""
     client = Client()

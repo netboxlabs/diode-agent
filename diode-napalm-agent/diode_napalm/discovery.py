@@ -14,6 +14,20 @@ supported_drivers = ["ios", "eos", "junos", "nxos"]
 
 
 def set_napalm_logs_level(level: int):
+    """
+    Set the logging level for NAPALM and related libraries.
+
+    Args:
+    ----
+        level (int): The logging level to set. Typically, this can be one of the
+                     standard logging levels (e.g., logging.DEBUG, logging.INFO,
+                     logging.WARNING, logging.ERROR, logging.CRITICAL).
+
+    This function adjusts the logging levels for the "napalm", "ncclient", and
+    "paramiko" loggers to the specified level, which is useful for controlling
+    the verbosity of log output from these libraries.
+
+    """
     logging.getLogger("napalm").setLevel(level)
     logging.getLogger("ncclient").setLevel(level)
     logging.getLogger("paramiko").setLevel(level)
@@ -50,12 +64,14 @@ def discover_device_driver(info: dict) -> str:
                 device_info = device.get_facts()
                 if device_info.get("serial_number", "Unknown").lower() == "unknown":
                     logger.info(
-                        f"Hostname {info.hostname}: '{driver}' driver not worked"
+                        f"Hostname {info.hostname}: '{driver}' driver did not work"
                     )
                     continue
                 set_napalm_logs_level(logging.INFO)
                 return driver
-        except:
-            logger.info(f"Hostname {info.hostname}: '{driver}' driver not worked")
+        except Exception as e:
+            logger.info(
+                f"Hostname {info.hostname}: '{driver}' driver did not work. Exception: {str(e)}"
+            )
     set_napalm_logs_level(logging.INFO)
     return ""
