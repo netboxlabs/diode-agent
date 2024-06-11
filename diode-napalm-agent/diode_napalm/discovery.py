@@ -23,14 +23,15 @@ def set_napalm_logs_level(level: int):
                      standard logging levels (e.g., logging.DEBUG, logging.INFO,
                      logging.WARNING, logging.ERROR, logging.CRITICAL).
 
-    This function adjusts the logging levels for the "napalm", "ncclient", and
-    "paramiko" loggers to the specified level, which is useful for controlling
-    the verbosity of log output from these libraries.
+    This function adjusts the logging levels for the "napalm", "ncclient","paramiko"
+    and "pyeapi" loggers to the specified level, which is useful for controlling the
+    verbosity of log output from these libraries.
 
     """
     logging.getLogger("napalm").setLevel(level)
     logging.getLogger("ncclient").setLevel(level)
     logging.getLogger("paramiko").setLevel(level)
+    logging.getLogger("pyeapi").setLevel(level)
 
 
 def discover_device_driver(info: dict) -> str:
