@@ -96,4 +96,4 @@ class Client:
         if response.errors:
             logger.error(f"ERROR ingestion failed for {hostname} : {response.errors}")
         else:
-            logger.info(f"Successful ingestion for {hostname}")
+            logger.info(f"Hostname {hostname}: Successful ingestion")

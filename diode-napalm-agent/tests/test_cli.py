@@ -312,7 +312,7 @@ def test_run_driver_exception(mock_discover_device_driver):
     with pytest.raises(Exception) as excinfo:
         run_driver(info, config)
 
-    assert str(excinfo.value) == "Not able to discover device driver"
+    assert str(excinfo.value) == f"Hostname {info.hostname}: Not able to discover device driver"
 
 
 def test_run_driver_no_driver(

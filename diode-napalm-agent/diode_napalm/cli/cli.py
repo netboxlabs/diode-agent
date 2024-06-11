@@ -39,14 +39,16 @@ def run_driver(info: Napalm, config: DiscoveryConfig):
 
     """
     if info.driver is None:
-        logger.info("Driver not informed, discovering it")
+        logger.info(f"Hostname {info.hostname}: Driver not informed, discovering it")
         info.driver = discover_device_driver(info)
         if not info.driver:
-            raise Exception("Not able to discover device driver")
+            raise Exception(
+                f"Hostname {info.hostname}: Not able to discover device driver"
+            )
 
-    logger.info(f"Get driver '{info.driver}'")
+    logger.info(f"Hostname {info.hostname}: Get driver '{info.driver}'")
     np_driver = get_network_driver(info.driver)
-    logger.info(f"Getting information from '{info.hostname}'")
+    logger.info(f"Hostname {info.hostname}: Getting information")
     with np_driver(
         info.hostname, info.username, info.password, info.timeout, info.optional_args
     ) as device:

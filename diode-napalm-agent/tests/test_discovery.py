@@ -54,20 +54,21 @@ def test_discover_device_driver_no_serial_number(mock_get_network_driver):
         mock_get_network_driver: Mocked get_network_driver function.
 
     """
-    mock_driver_instance = MagicMock()
-    mock_driver_instance.get_facts.return_value = {"serial_number": "Unknown"}
 
-    mock_get_network_driver.side_effect = [
-        MagicMock(return_value=mock_driver_instance)
-    ] * len(supported_drivers)
+    def side_effect():
+        mock_driver_instance = MagicMock()
+        mock_driver_instance.get_facts.return_value = {"serial_number": "Unknown"}
+        return mock_driver_instance
 
-    info = {
-        "hostname": "testhost",
-        "username": "testuser",
-        "password": "testpass",
-        "timeout": 10,
-        "optional_args": {},
-    }
+    mock_get_network_driver.side_effect = side_effect
+
+    info = SimpleNamespace(
+        hostname="testhost",
+        username="testuser",
+        password="testpass",
+        timeout=10,
+        optional_args={},
+    )
 
     driver = discover_device_driver(info)
     assert driver == "", "Expected no driver to be found"
@@ -84,13 +85,13 @@ def test_discover_device_driver_exception(mock_get_network_driver):
     """
     mock_get_network_driver.side_effect = Exception("Connection failed")
 
-    info = {
-        "hostname": "testhost",
-        "username": "testuser",
-        "password": "testpass",
-        "timeout": 10,
-        "optional_args": {},
-    }
+    info = SimpleNamespace(
+        hostname="testhost",
+        username="testuser",
+        password="testpass",
+        timeout=10,
+        optional_args={},
+    )
 
     driver = discover_device_driver(info)
     assert driver == "", "Expected no driver to be found due to exception"
@@ -107,7 +108,7 @@ def test_discover_device_driver_mixed_results(mock_get_network_driver):
     """
 
     def side_effect(driver_name):
-        if driver_name == "ios":
+        if driver_name == "nxos":
             mock_driver_instance = MagicMock()
             mock_driver_instance.get_facts.return_value = {"serial_number": "ABC123"}
             return mock_driver_instance
@@ -124,4 +125,4 @@ def test_discover_device_driver_mixed_results(mock_get_network_driver):
     )
 
     driver = discover_device_driver(info)
-    assert driver == "ios", "Expected the 'ios' driver to be found"
+    assert driver == "nxos", "Expected the 'ios' driver to be found"
