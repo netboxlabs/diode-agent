@@ -195,7 +195,7 @@ def test_main_load_dotenv_failure(mock_parse_args, mock_load_dotenv):
 
     mock_load_dotenv.assert_called_once_with(".env", override=True)
     mock_exit.assert_called_once_with(
-        "ERROR: : Unable to load environment variables from file .env"
+        "ERROR: Unable to load environment variables from file .env"
     )
 
 
@@ -284,7 +284,7 @@ def test_main_load_dotenv_exception(mock_parse_args):
                 assert str(e) == "Test Exit"
 
     mock_exit.assert_called_once_with(
-        "ERROR: : Unable to load environment variables from file .env"
+        "ERROR: Unable to load environment variables from file .env"
     )
 
 
@@ -312,7 +312,10 @@ def test_run_driver_exception(mock_discover_device_driver):
     with pytest.raises(Exception) as excinfo:
         run_driver(info, config)
 
-    assert str(excinfo.value) == f"Hostname {info.hostname}: Not able to discover device driver"
+    assert (
+        str(excinfo.value)
+        == f"Hostname {info.hostname}: Not able to discover device driver"
+    )
 
 
 def test_run_driver_no_driver(

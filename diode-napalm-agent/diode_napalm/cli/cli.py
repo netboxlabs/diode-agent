@@ -81,7 +81,7 @@ def start_policy(name: str, cfg: Policy, max_workers: int):
             try:
                 future.result()
             except Exception as e:
-                logger.error(f"ERROR: Error in processing for policy {name}: {e}")
+                logger.error(f"Error while processing policy {name}: {e}")
 
 
 def start_agent(cfg: Diode, workers: int):
@@ -143,7 +143,7 @@ def main():
     if hasattr(args, "env") and args.env is not None:
         if not load_dotenv(args.env, override=True):
             sys.exit(
-                f"ERROR: : Unable to load environment variables from file {args.env}"
+                f"ERROR: Unable to load environment variables from file {args.env}"
             )
 
     try:
