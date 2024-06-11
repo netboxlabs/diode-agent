@@ -62,3 +62,11 @@ diode:
 ```
 
 The detailed information for `optional_args` can be found in NAPALM [documentation](https://napalm.readthedocs.io/en/latest/support/#optional-arguments).
+
+### Supported drivers
+The default supported drivers are the ones that are natively supported by [napalm](https://napalm.readthedocs.io/en/latest/#supported-network-operating-systems).
+- Arista EOS ("eos")
+- Cisco IOS ("ios")
+- Cisco IOS-XR ("iosxr")
+- Cisco NX-OS ("nxos")
+- Juniper JunOS ("junos")
