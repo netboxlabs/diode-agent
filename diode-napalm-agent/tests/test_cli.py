@@ -385,7 +385,7 @@ def test_run_driver_with_not_intalled_driver(
     mock_get_network_driver.assert_not_called()
 
     assert str(excinfo.value).startswith(
-        f"Hostname {info.hostname}: specified driver '{info.driver}' was not found in the current supported drivers list:"
+        f"Hostname {info.hostname}: specified driver '{info.driver}' was not found in the current installed drivers list:"
     )
 
 
