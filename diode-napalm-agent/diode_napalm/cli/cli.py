@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 from napalm import get_network_driver
 
 from diode_napalm.client import Client
-from diode_napalm.discovery import discover_device_driver
+from diode_napalm.discovery import discover_device_driver, supported_drivers
 from diode_napalm.parser import (
     Diode,
     DiscoveryConfig,
@@ -45,6 +45,12 @@ def run_driver(info: Napalm, config: DiscoveryConfig):
             raise Exception(
                 f"Hostname {info.hostname}: Not able to discover device driver"
             )
+    elif not info.driver in supported_drivers:
+        raise Exception(
+            f"Hostname {info.hostname}: specified driver '{info.driver}' was not found in the current supported drivers list: "
+            f"{supported_drivers}.\nHINT: If '{info.driver}' is a community napalm driver, try to perform the following command:"
+            f"\n\n\tpip install napalm-{info.driver.replace('_', '-')}\n"
+        )
 
     logger.info(f"Hostname {info.hostname}: Get driver '{info.driver}'")
     np_driver = get_network_driver(info.driver)
