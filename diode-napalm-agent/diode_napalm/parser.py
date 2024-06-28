@@ -4,7 +4,7 @@
 
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import yaml
 from pydantic import BaseModel, Field, ValidationError
@@ -19,12 +19,12 @@ class ParseException(Exception):
 class Napalm(BaseModel):
     """Model for NAPALM configuration."""
 
-    driver: Optional[str] = Field(default=None, description="Driver name, optional")
+    driver: str | None = Field(default=None, description="Driver name, optional")
     hostname: str
     username: str
     password: str
     timeout: int = 60
-    optional_args: Optional[Dict[str, Any]] = Field(
+    optional_args: dict[str, Any] | None = Field(
         default=None, description="Optional arguments"
     )
 
@@ -32,14 +32,14 @@ class Napalm(BaseModel):
 class DiscoveryConfig(BaseModel):
     """Model for discovery configuration."""
 
-    netbox: Dict[str, str]
+    netbox: dict[str, str]
 
 
 class Policy(BaseModel):
     """Model for a policy configuration."""
 
     config: DiscoveryConfig
-    data: List[Napalm]
+    data: list[Napalm]
 
 
 class DiodeConfig(BaseModel):
@@ -53,7 +53,7 @@ class Diode(BaseModel):
     """Model for Diode containing configuration and policies."""
 
     config: DiodeConfig
-    policies: Dict[str, Policy]
+    policies: dict[str, Policy]
 
 
 class Config(BaseModel):

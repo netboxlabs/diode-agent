@@ -353,6 +353,42 @@ def test_run_driver_no_driver(
     mock_client().ingest.assert_called_once()
 
 
+def test_run_driver_with_not_intalled_driver(
+    mock_get_network_driver, mock_discover_device_driver
+):
+    """
+    Test run_driver function when driver is provided but not installed.
+
+    Args:
+    ----
+        mock_get_network_driver: Mocked get_network_driver function.
+        mock_discover_device_driver: Mocked discover_device_driver function.
+
+    """
+    info = Napalm(
+        driver="not_installed",
+        hostname="test_host",
+        username="user",
+        password="pass",
+        timeout=10,
+        optional_args={},
+    )
+    config = DiscoveryConfig(netbox={"site": "test_site"})
+
+    mock_np_driver = MagicMock()
+    mock_get_network_driver.return_value = mock_np_driver
+
+    with pytest.raises(Exception) as excinfo:
+        run_driver(info, config)
+
+    mock_discover_device_driver.assert_not_called()
+    mock_get_network_driver.assert_not_called()
+
+    assert str(excinfo.value).startswith(
+        f"Hostname {info.hostname}: specified driver '{info.driver}' was not found in the current installed drivers list:"
+    )
+
+
 def test_run_driver_with_driver(
     mock_client, mock_get_network_driver, mock_discover_device_driver
 ):
@@ -367,7 +403,7 @@ def test_run_driver_with_driver(
 
     """
     info = Napalm(
-        driver="existing_driver",
+        driver="ios",
         hostname="test_host",
         username="user",
         password="pass",
@@ -382,7 +418,7 @@ def test_run_driver_with_driver(
     run_driver(info, config)
 
     mock_discover_device_driver.assert_not_called()
-    mock_get_network_driver.assert_called_once_with("existing_driver")
+    mock_get_network_driver.assert_called_once_with("ios")
     mock_np_driver.assert_called_once_with("test_host", "user", "pass", 10, {})
     mock_client().ingest.assert_called_once()
 
