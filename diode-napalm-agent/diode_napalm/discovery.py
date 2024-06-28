@@ -2,9 +2,9 @@
 # Copyright 2024 NetBox Labs Inc
 """Discover the correct NAPALM Driver."""
 
-import importlib_metadata
 import logging
 
+import importlib_metadata
 from napalm import get_network_driver
 
 # Set up logging
@@ -20,11 +20,12 @@ def napalm_driver_list():
     appending their names (with the 'napalm-' prefix removed and hyphens replaced
     with underscores) to a list of known drivers.
 
-    Returns:
+    Returns
     -------
         List[str]: A list of strings representing the names of available NAPALM drivers.
                    The list includes some predefined driver names and dynamically
                    discovered driver names from the installed packages.
+
     """
     napalm_packages = ["ios", "eos", "junos", "nxos"]
     prefix = "napalm-"

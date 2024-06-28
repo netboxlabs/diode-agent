@@ -55,7 +55,7 @@ class Client:
         if not hasattr(self, "diode_client"):  # Prevent reinitialization
             self.diode_client = None
 
-    def init_client(self, target: str, api_key: Optional[str] = None):
+    def init_client(self, target: str, api_key: str | None = None):
         """
         Initialize the Diode client with the specified target, API key, and TLS verification.
 

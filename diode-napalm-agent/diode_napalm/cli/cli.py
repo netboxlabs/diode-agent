@@ -45,7 +45,7 @@ def run_driver(info: Napalm, config: DiscoveryConfig):
             raise Exception(
                 f"Hostname {info.hostname}: Not able to discover device driver"
             )
-    elif not info.driver in supported_drivers:
+    elif info.driver not in supported_drivers:
         raise Exception(
             f"Hostname {info.hostname}: specified driver '{info.driver}' was not found in the current supported drivers list: "
             f"{supported_drivers}.\nHINT: If '{info.driver}' is a community napalm driver, try to perform the following command:"
