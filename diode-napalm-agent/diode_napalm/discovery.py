@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def napalm_driver_list():
+def napalm_driver_list() -> list[str]:
     """
     List the available NAPALM drivers.
 
