@@ -3,7 +3,7 @@
 """Translate from NAPALM output format to Diode SDK entities."""
 
 import ipaddress
-from typing import Iterable
+from collections.abc import Iterable
 
 from netboxlabs.diode.sdk.ingester import (
     Device,

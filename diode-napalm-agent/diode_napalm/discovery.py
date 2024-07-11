@@ -4,13 +4,39 @@
 
 import logging
 
+import importlib_metadata
 from napalm import get_network_driver
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-supported_drivers = ["ios", "eos", "junos", "nxos"]
+
+def napalm_driver_list() -> list[str]:
+    """
+    List the available NAPALM drivers.
+
+    This function scans the installed Python packages to identify NAPALM drivers,
+    appending their names (with the 'napalm-' prefix removed and hyphens replaced
+    with underscores) to a list of known drivers.
+
+    Returns
+    -------
+        List[str]: A list of strings representing the names of available NAPALM drivers.
+                   The list includes some predefined driver names and dynamically
+                   discovered driver names from the installed packages.
+
+    """
+    napalm_packages = ["ios", "eos", "junos", "nxos"]
+    prefix = "napalm-"
+    for dist in importlib_metadata.distributions():
+        if dist.metadata["Name"].startswith(prefix):
+            package = dist.metadata["Name"][len(prefix) :].replace("-", "_")
+            napalm_packages.append(package)
+    return napalm_packages
+
+
+supported_drivers = napalm_driver_list()
 
 
 def set_napalm_logs_level(level: int):
