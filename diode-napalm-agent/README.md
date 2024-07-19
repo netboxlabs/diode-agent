@@ -1,49 +1,41 @@
-# diode-napalm-agent
+# Diode NAPALM Agent
 
-Diode Agent is a lightweight new device discovery tool (using [NAPALM](https://github.com/napalm-automation/napalm))
-that streamlines data entry into NetBox using the [Diode SDK](https://github.com/netboxlabs/diode-sdk-python).
+The Diode NAPALM Agent is a lightweight network device discovery tool that uses [NAPALM](https://github.com/napalm-automation/napalm) to streamline data entry into NetBox through the [Diode](https://github.com/netboxlabs/diode) ingestion service.
 
-# Quickstart
+# Get started
 
-This is a basic set of instructions on how to get started using Diode on your local machine.
+This is a basic set of instructions to get started using Diode NAPALM agent on a local machine.
 
 ## Requirements
 
+The Diode NAPALM Agent requires a Python runtime environment and has the following requirements:
 - napalm==5.0.0
 - netboxlabs-diode-sdk==0.1.0
 - pydantic==2.7.1
 - python-dotenv==1.0.1
 
-## Usage
+Instructions on installing the Diode SDK Python can be found [here](https://github.com/netboxlabs/diode-sdk-python).
 
-Firstly, you should clone the repository and install the agent
+## Installation
+
+Clone the agent repository:
 
 ```bash
 git clone https://github.com/netboxlabs/diode-agent.git
 cd diode-agent/
+```
+
+Create a Python virtual environment and install the agent:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
 pip install ./diode-napalm-agent --no-cache-dir
 ```
 
-Then, you can run `diode-napalm-agent`
+### Create a discovery configuration file
 
-```
-usage: diode-napalm-agent [-h] [-V] -c config.yaml [-e .env] [-w N]
-```
-
-Simple example:
-
-```bash
-diode-napalm-agent -c config.yaml
-```
-
-### Create a `config.yaml` for your discovery
-
-The `config.yaml` needs to be updated with an inventory of devices to be discovered. The file will look something like
-this, where the `data` section needs to be populated with the list of devices and their credentials that you want to
-have discovered. The config session should be filled with your diode server information.
-
-You can pass environment variables e.g. `${ENV}`, so they will be resolved at parsing time. Also, if `driver` is not
-specified, diode napalm agent will try to find the best match for it.
+A configuration file needs to be created with an inventory of devices to be discovered. An example (`config.sample.yaml`) is provided in the agent repository. The `config` section needs to be updated to reflect your Diode server environment and the `data` section should include a list of all devices (and their credentials) to be discovered.
 
 ```yaml
 diode:
@@ -67,16 +59,47 @@ diode:
             enable_password: ${ARISTA_PASSWORD}
 ```
 
-The detailed information for `optional_args` can be found in
-NAPALM [documentation](https://napalm.readthedocs.io/en/latest/support/#optional-arguments).
+Variables (using `${ENV}` syntax) can be referenced in the configuration file from environmental variables or from a provided `.env` file.
+
+The `driver` device attribute is optional. If not specified, the agent will attempt to find a match from NAPALM supported drivers.
+
+Detailed information about `optional_args` can be found in the NAPALM [documentation](https://napalm.readthedocs.io/en/latest/support/#optional-arguments).
+
+
+## Running the agent
+
+Usage:
+
+```
+usage: diode-napalm-agent [-h] [-V] -c config.yaml [-e .env] [-w N]
+
+Diode Agent for NAPALM
+
+options:
+  -h, --help            show this help message and exit
+  -V, --version         Display Diode Agent, NAPALM and Diode SDK versions
+  -c config.yaml, --config config.yaml
+                        Agent yaml configuration file
+  -e .env, --env .env   File containing environment variables
+  -w N, --workers N     Number of workers to be used
+```
+
+Run `diode-napalm-agent` with a discovery configuration file named `config.yaml`:
+
+```bash
+diode-napalm-agent -c config.yaml
+```
 
 ### Supported drivers
 
-The default supported drivers are the ones that are natively supported
-by [NAPALM](https://napalm.readthedocs.io/en/latest/#supported-network-operating-systems).
+The default supported drivers are the natively supported [NAPALM](https://napalm.readthedocs.io/en/latest/#supported-network-operating-systems) drivers:
 
 - Arista EOS ("eos")
 - Cisco IOS ("ios")
 - Cisco IOS-XR ("iosxr")
 - Cisco NX-OS ("nxos")
 - Juniper JunOS ("junos")
+
+## License
+
+Distributed under the Apache 2.0 License. See [LICENSE.txt](./diode-proto/LICENSE.txt) for more information.
