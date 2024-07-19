@@ -49,7 +49,7 @@ specified, diode napalm agent will try to find the best match for it.
 diode:
   config:
     target: grpc://localhost:8081
-    api_key: ${API_KEY}
+    api_key: ${DIODE_API_KEY}
   policies:
     discovery_1:
       config:
