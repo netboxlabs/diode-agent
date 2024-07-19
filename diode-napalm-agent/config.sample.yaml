@@ -1,0 +1,19 @@
+diode:
+  config:
+    target: grpc://localhost:8081
+    api_key: ${DIODE_API_KEY}
+  policies:
+    discovery_1:
+      config:
+        netbox:
+          site: New York NY
+      data:
+        - hostname: 192.168.0.32
+          username: ${USER}
+          password: admin
+        - driver: eos
+          hostname: 127.0.0.1
+          username: admin
+          password: ${ARISTA_PASSWORD}
+          optional_args:
+            enable_password: ${ARISTA_PASSWORD}
