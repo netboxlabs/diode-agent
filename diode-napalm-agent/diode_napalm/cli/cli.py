@@ -58,13 +58,25 @@ def run_driver(info: Napalm, config: DiscoveryConfig):
     with np_driver(
         info.hostname, info.username, info.password, info.timeout, info.optional_args
     ) as device:
+        
+        """
+        Support drivers that do not implement the 'get_vlans' API method
+        """
+        def optional_vlans():
+            try:
+               return device.get_vlans()
+            except Exception as e:
+                logger.exception(e)
+                logger.warning( f"Unable to retrieve VLANs: {e}" )
+                return {}
+
         data = {
             "driver": info.driver,
             "site": config.netbox.get("site", None),
             "device": device.get_facts(),
             "interface": device.get_interfaces(),
             "interface_ip": device.get_interfaces_ip(),
-            "vlan": device.get_vlans(),
+            "vlan": optional_vlans(),
         }
         Client().ingest(info.hostname, data)
 
@@ -87,6 +99,7 @@ def start_policy(name: str, cfg: Policy, max_workers: int):
             try:
                 future.result()
             except Exception as e:
+                logger.exception(e)
                 logger.error(f"Error while processing policy {name}: {e}")
 
 
