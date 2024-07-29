@@ -61,7 +61,7 @@ diode:
 
 Variables (using `${ENV}` syntax) can be referenced in the configuration file from environmental variables or from a provided `.env` file.
 
-The `driver` device attribute is optional. If not specified, the agent will attempt to find a match from NAPALM supported drivers.
+The `driver` device attribute is optional. If not specified, the agent will attempt to find a match from NAPALM supported/installed drivers.
 
 Detailed information about `optional_args` can be found in the NAPALM [documentation](https://napalm.readthedocs.io/en/latest/support/#optional-arguments).
 
@@ -99,6 +99,19 @@ The default supported drivers are the natively supported [NAPALM](https://napalm
 - Cisco IOS-XR ("iosxr")
 - Cisco NX-OS ("nxos")
 - Juniper JunOS ("junos")
+
+Moreover, if a NAPALM [community driver](https://github.com/napalm-automation-community) is installed in the environment, it can be used in the agent's policy and also in automatic driver matching when none are specified.
+
+### Supported Netbox Object Types
+
+Currently, once napalm agent connects to a network device, it tries to fetch and ingest to Diode the following Netbox Object Types:
+
+- [DCIM.Device](https://netboxlabs.com/docs/netbox/en/stable/models/dcim/device/)
+- [DCIM.DeviceType](https://netboxlabs.com/docs/netbox/en/stable/models/dcim/devicetype/)
+- [DCIM.Interface](https://netboxlabs.com/docs/netbox/en/stable/models/dcim/interface/)
+- [DCIM.Platform](https://netboxlabs.com/docs/netbox/en/stable/models/dcim/platform/)
+- [IPAM.IPAddress](https://netboxlabs.com/docs/netbox/en/stable/models/ipam/ipaddress/)
+- [IPAM.Prefix](https://netboxlabs.com/docs/netbox/en/stable/models/ipam/prefix/)
 
 ## License
 

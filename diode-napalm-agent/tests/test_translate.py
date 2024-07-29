@@ -36,6 +36,7 @@ def sample_interface_info():
             "mac_address": "00:1C:58:29:4A:71",
             "speed": 1000,
             "description": "Uplink Interface",
+            "type": "ethernet",
         }
     }
 
@@ -69,6 +70,7 @@ def test_translate_interface(sample_device_info, sample_interface_info):
     assert interface.mac_address == "00:1C:58:29:4A:71"
     assert interface.speed == 1000
     assert interface.description == "Uplink Interface"
+    assert interface.type == "ethernet"
 
 
 def test_translate_interface_ips(

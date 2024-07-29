@@ -29,6 +29,7 @@ def sample_data():
                 "mac_address": "00:1C:58:29:4A:71",
                 "speed": 1000,
                 "description": "Uplink Interface",
+                "type": "ethernet"
             }
         },
         "interface_ip": {
