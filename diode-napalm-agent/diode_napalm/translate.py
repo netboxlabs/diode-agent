@@ -64,7 +64,6 @@ def translate_interface(
     interface = Interface(
         device=device,
         name=if_name,
-        type=interface_info.get("type"),
         enabled=interface_info.get("is_enabled"),
         mtu=interface_info.get("mtu"),
         mac_address=interface_info.get("mac_address"),
