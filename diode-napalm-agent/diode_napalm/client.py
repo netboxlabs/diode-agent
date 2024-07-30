@@ -4,7 +4,6 @@
 
 import logging
 import threading
-from typing import Optional
 
 from netboxlabs.diode.sdk import DiodeClient
 

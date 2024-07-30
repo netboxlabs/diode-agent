@@ -64,7 +64,6 @@ def run_driver(info: Napalm, config: DiscoveryConfig):
             "device": device.get_facts(),
             "interface": device.get_interfaces(),
             "interface_ip": device.get_interfaces_ip(),
-            "vlan": device.get_vlans(),
         }
         Client().ingest(info.hostname, data)
 
