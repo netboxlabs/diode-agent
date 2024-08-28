@@ -26,6 +26,7 @@ classifiers = [
 
 dependencies = [
     "ping3==4.0.8",
+    "mac-vendor-lookup==0.1.12",
     "netboxlabs-diode-sdk==0.2.0",
     "pydantic==2.7.1",
     "python-dotenv==1.0.1",

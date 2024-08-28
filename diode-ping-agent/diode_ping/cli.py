@@ -11,15 +11,17 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import netboxlabs.diode.sdk.version as SdkVersion
 from dotenv import load_dotenv
 
+from diode_ping.arp import arp_scan
 from diode_ping.client import Client
-from diode_ping.discovery import discover_interface, discover_ip_range
-from diode_ping.parser import (
-    Diode,
-    Policy,
-    parse_config_file,
-)
+from diode_ping.discovery import discover_interface, discover_ip_range, get_ip_address
+from diode_ping.parser import Diode, Policy, parse_config_file
 from diode_ping.version import version_semver
+
 from ping3 import ping
+from mac_vendor_lookup import MacLookup
+
+mac = MacLookup()
+mac.update_vendors()
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -98,11 +100,21 @@ def run_ping(name: str, policy: Policy):
     logger.info(
         f"Policy {name}: Getting Active IP Addresses on interface '{policy.interface}' in range '{policy.network}'"
     )
+    active_ips = scan_network(policy.network)
     data = {
         "site": policy.config.netbox.get("site", None),
         "prefix": policy.network,
-        "active_ips": scan_network(policy.network),
+        "active_ips": active_ips,
     }
+    src_ip = get_ip_address(name, policy.interface)
+    for ip in active_ips:
+        if ip != src_ip:
+            dst_mac = arp_scan(policy.interface, src_ip, ip)
+            try:
+                print(mac.lookup(dst_mac))
+            except Exception:
+                pass
+
     Client().ingest(name, data)
 
 

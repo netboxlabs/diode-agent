@@ -10,6 +10,7 @@ This is a basic set of instructions to get started using Diode NAPALM agent on a
 
 The Diode Ping Agent requires a Python runtime environment and has the following requirements:
 - ping3==4.0.8
+- mac-vendor-lookup==0.1.12
 - netboxlabs-diode-sdk==0.2.0
 - pydantic==2.7.1
 - python-dotenv==1.0.1

@@ -58,3 +58,13 @@ def discover_ip_range(name: str, interface: str) -> IPv4Network:
             return interface.network
     logger.error(f"Policy {name}: No IPv4 address found for interface {interface}")
     return None
+
+
+def get_ip_address(name: str, interface: str) -> IPv4Network:
+    addrs = psutil.net_if_addrs()
+    if interface in addrs:
+        for addr in addrs[interface]:
+            if addr.family == socket.AF_INET:
+                return addr.address
+    logger.error(f"Policy {name}: No IPv4 address found for interface {interface}")
+    return None
