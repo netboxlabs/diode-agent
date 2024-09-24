@@ -2,8 +2,8 @@
 # Copyright 2024 NetBox Labs Inc
 """Parse Diode Agent Config file."""
 
-from ipaddress import IPv4Network
 import os
+from ipaddress import IPv4Network
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +21,8 @@ class DiscoveryConfig(BaseModel):
     """Model for discovery configuration."""
 
     netbox: dict[str, str]
+    macaddress_lookup: bool = Field(default=True)
+    scan_ports: bool = Field(default=True)
 
 
 class Policy(BaseModel):

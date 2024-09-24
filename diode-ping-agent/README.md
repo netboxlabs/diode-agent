@@ -41,11 +41,13 @@ A configuration file needs to be created with an inventory of devices to be disc
 ```yaml
 diode:
   config:
-    target: grpc://localhost:8081
+    target: grpc://localhost:8080/diode
     api_key: ${DIODE_API_KEY}
   policies:
     discovery_1:
       config:
+        macaddress_lookup: True
+        ports_scan: True
         netbox:
           site: New York NY
       interface: eth0
@@ -78,7 +80,7 @@ options:
 Run `diode-ping-agent` with a discovery configuration file named `config.yaml`:
 
 ```bash
-diode-napalm-agent -c config.yaml
+diode-ping-agent -c config.yaml
 ```
 
 ### Supported Netbox Object Types

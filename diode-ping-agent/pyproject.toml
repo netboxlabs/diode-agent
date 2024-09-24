@@ -40,7 +40,7 @@ test = ["coverage", "pytest", "pytest-cov"]
 "Homepage" = "https://netboxlabs.com/"
 
 [project.scripts]
-diode-napalm-agent = "diode_napalm.cli.cli:main"
+diode-ping-agent = "diode_ping.cli:main"
 
 [tool.setuptools]
 packages = [

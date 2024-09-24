@@ -2,10 +2,10 @@
 # Copyright 2024 NetBox Labs Inc
 """Diode Ping Agent ARP."""
 
+import binascii
 import fcntl
 import socket
 import struct
-import binascii
 from ipaddress import IPv4Network
 
 # Constants
@@ -13,13 +13,41 @@ SIOCGIFHWADDR = 0x8927  # Get hardware address
 SIOCGIFADDR = 0x8915  # Get IP address
 
 
-def get_mac_address(ifname: bytes):
+def get_mac_address(ifname: bytes) -> str:
+    """
+    Retrieve the MAC address for a given network interface.
+
+    Args:
+    ----
+        ifname (bytes): Network interface name as a byte string.
+
+    Returns:
+    -------
+        str: MAC address in colon-separated format.
+
+    """
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     info = fcntl.ioctl(sock.fileno(), SIOCGIFHWADDR, struct.pack("256s", ifname[:15]))
-    return ":".join(["%02x" % b for b in info[18:24]])
+    return ":".join([f"{b:02x}" for b in info[18:24]])
 
 
-def create_arp_request(src_mac, src_ip, target_ip):
+def create_arp_request(
+    src_mac: str, src_ip: IPv4Network, target_ip: IPv4Network
+) -> bytes:
+    """
+    Create an ARP request packet.
+
+    Args:
+    ----
+        src_mac (str): Source MAC address.
+        src_ip (IPv4Network): Source IP address.
+        target_ip (IPv4Network): Target IP address to send ARP request to.
+
+    Returns:
+    -------
+        bytes: The crafted ARP request packet.
+
+    """
     eth_header = struct.pack(
         "!6s6s2s",
         b"\xff\xff\xff\xff\xff\xff",  # Destination MAC (Broadcast)
@@ -35,14 +63,27 @@ def create_arp_request(src_mac, src_ip, target_ip):
         b"\x04",  # Protocol size
         b"\x00\x01",  # Opcode (request)
         binascii.unhexlify(src_mac.replace(":", "")),  # Sender MAC
-        socket.inet_aton(src_ip),  # Sender IP
+        socket.inet_aton(str(src_ip)),  # Sender IP
         b"\x00\x00\x00\x00\x00\x00",  # Target MAC
-        socket.inet_aton(target_ip),
+        socket.inet_aton(str(target_ip)),
     )  # Target IP
     return eth_header + arp_header
 
 
-def parse_arp_response(packet):
+def parse_arp_response(packet: bytes) -> tuple[str, str]:
+    """
+    Parse the ARP response packet.
+
+    Args:
+    ----
+        packet (bytes): Raw packet data.
+
+    Returns:
+    -------
+        tuple[str, str]: A tuple containing the source IP and MAC address
+                         from the ARP response. If not ARP, returns (None, None).
+
+    """
     eth_header = packet[0:14]
     eth = struct.unpack("!6s6s2s", eth_header)
 
@@ -56,7 +97,23 @@ def parse_arp_response(packet):
     return None, None
 
 
-def arp_scan(ifname: str, src_ip: IPv4Network, target_ip: IPv4Network) -> str:
+def arp_scan(
+    ifname: str, src_ip: IPv4Network, target_ip: IPv4Network
+) -> tuple[IPv4Network, str]:
+    """
+    Perform an ARP scan on the network to find the target MAC address.
+
+    Args:
+    ----
+        ifname (str): Network interface name.
+        src_ip (IPv4Network): Source IP address.
+        target_ip (IPv4Network): Target IP address to scan.
+
+    Returns:
+    -------
+        tuple: A tuple containing the target IP and MAC address if found.
+
+    """
     src_mac = get_mac_address(ifname.encode())
     sock = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(0x0003))
     sock.bind((ifname, 0))
@@ -66,4 +123,4 @@ def arp_scan(ifname: str, src_ip: IPv4Network, target_ip: IPv4Network) -> str:
         raw_packet = sock.recv(65536)
         src_ip, src_mac = parse_arp_response(raw_packet)
         if src_ip:
-            return src_mac
+            return target_ip, src_mac

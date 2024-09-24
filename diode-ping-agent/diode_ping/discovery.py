@@ -2,9 +2,9 @@
 # Copyright 2024 NetBox Labs Inc
 """Discover the correct NAPALM Driver."""
 
-from ipaddress import IPv4Network, ip_interface
 import logging
 import socket
+from ipaddress import IPv4Network, ip_interface
 
 import psutil
 
@@ -26,6 +26,7 @@ def discover_interface(name: str) -> str:
         str: The name of the network interface that has the highest combined
              count of sent and received bytes. Returns an empty string if no
              interface is found.
+
     """
     io_counters = psutil.net_io_counters(pernic=True)
     most_used_interface = max(
@@ -50,6 +51,7 @@ def discover_ip_range(name: str, interface: str) -> IPv4Network:
     -------
         IPv4Network: The IP network range for the given interface, based on its IP address and netmask.
                      Returns None if no IPv4 address is found.
+
     """
     addrs = psutil.net_if_addrs()[interface]
     for addr in addrs:
@@ -61,6 +63,20 @@ def discover_ip_range(name: str, interface: str) -> IPv4Network:
 
 
 def get_ip_address(name: str, interface: str) -> IPv4Network:
+    """
+    Retrieve the IP address for a given network interface.
+
+    Args:
+    ----
+        name (str): The name associated with the operation or policy for logging purposes.
+        interface (str): The name of the network interface to examine.
+
+    Returns:
+    -------
+        str: The IPv4 address as a string for the given interface.
+             Returns None if no IPv4 address is found.
+
+    """
     addrs = psutil.net_if_addrs()
     if interface in addrs:
         for addr in addrs[interface]:

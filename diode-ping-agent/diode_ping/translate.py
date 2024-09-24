@@ -4,7 +4,7 @@
 
 from collections.abc import Iterable
 
-from netboxlabs.diode.sdk.ingester import IPAddress, Prefix, Entity
+from netboxlabs.diode.sdk.ingester import Entity, IPAddress, Prefix
 
 
 def translate_data(data: dict) -> Iterable[Entity]:
@@ -20,13 +20,31 @@ def translate_data(data: dict) -> Iterable[Entity]:
         Iterable[Entity]: Iterable of translated entities.
 
     """
-
     entities = []
 
     entities.append(
         Entity(prefix=Prefix(prefix=str(data.get("prefix")), site=data.get("site", {})))
     )
-    for ip in data.get("active_ips", []):
-        entities.append(Entity(ip_address=IPAddress(address=ip)))
+
+    for active in data.get("active_ips", []):
+        description = ""
+        if active.get("vendor"):
+            description = f"MAC Vendor: {active.get("vendor")}"
+
+        comments = ""
+        ports = active.get("ports", {})
+        for port in ports:
+            if ports[port]:
+                comments += f"{port}: OPEN\n\n"
+            else:
+                comments += f"{port}: unreachable\n\n"
+
+        entities.append(
+            Entity(
+                ip_address=IPAddress(
+                    address=active["ip"], description=description, comments=comments
+                )
+            )
+        )
 
     return entities
