@@ -25,9 +25,10 @@ classifiers = [
 ]
 
 dependencies = [
+    "importlib-metadata==8.5.0",
     "napalm==5.0.0",
-    "netboxlabs-diode-sdk==0.1.0",
-    "pydantic==2.7.1",
+    "netboxlabs-diode-sdk==0.4.0",
+    "pydantic==2.9.2",
     "python-dotenv==1.0.1",
 ]
 
