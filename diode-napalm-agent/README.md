@@ -9,9 +9,10 @@ This is a basic set of instructions to get started using Diode NAPALM agent on a
 ## Requirements
 
 The Diode NAPALM Agent requires a Python runtime environment and has the following requirements:
+- importlib-metadata==8.5.0
 - napalm==5.0.0
-- netboxlabs-diode-sdk==0.1.0
-- pydantic==2.7.1
+- netboxlabs-diode-sdk==0.4.0
+- pydantic==2.9.2
 - python-dotenv==1.0.1
 
 Instructions on installing the Diode SDK Python can be found [here](https://github.com/netboxlabs/diode-sdk-python).
@@ -40,7 +41,7 @@ A configuration file needs to be created with an inventory of devices to be disc
 ```yaml
 diode:
   config:
-    target: grpc://localhost:8081
+    target: grpc://localhost:8080/diode
     api_key: ${DIODE_API_KEY}
   policies:
     discovery_1:
