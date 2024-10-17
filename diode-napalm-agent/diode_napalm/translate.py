@@ -16,6 +16,24 @@ from netboxlabs.diode.sdk.ingester import (
 )
 
 
+def int32_overflows(number: int) -> bool:
+    """
+    Check if an integer is overflowing the int32 range.
+
+    Args:
+    ----
+        n (int): The integer to check.
+
+    Returns:
+    -------
+        bool: True if the integer is overflowing the int32 range, False otherwise.
+
+    """
+    INT32_MIN = -2147483648
+    INT32_MAX = 2147483647
+    return not (INT32_MIN <= number <= INT32_MAX)
+
+
 def translate_device(device_info: dict) -> Device:
     """
     Translate device information from NAPALM format to Diode SDK Device entity.
@@ -65,11 +83,19 @@ def translate_interface(
         device=device,
         name=if_name,
         enabled=interface_info.get("is_enabled"),
-        mtu=interface_info.get("mtu"),
         mac_address=interface_info.get("mac_address"),
-        speed=int(interface_info.get("speed")),
         description=interface_info.get("description"),
     )
+
+    # Convert napalm interface speed from Mbps to Netbox Kbps
+    speed = int(interface_info.get("speed")) * 1000
+    if not int32_overflows(speed):
+        interface.speed = speed
+
+    mtu = interface_info.get("mtu")
+    if not int32_overflows(mtu):
+        interface.mtu = mtu
+
     return interface
 
 
