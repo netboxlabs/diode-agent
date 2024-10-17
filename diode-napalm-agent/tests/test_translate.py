@@ -41,6 +41,20 @@ def sample_interface_info():
 
 
 @pytest.fixture
+def sample_interface_overflows_info():
+    """Sample interface information for testing."""
+    return {
+        "GigabitEthernet0/0": {
+            "is_enabled": True,
+            "mtu": 150000000000,
+            "mac_address": "00:1C:58:29:4A:71",
+            "speed": 10000000000,
+            "description": "Uplink Interface",
+        }
+    }
+
+
+@pytest.fixture
 def sample_interfaces_ip():
     """Sample interface IPs for testing."""
     return {"GigabitEthernet0/0": {"ipv4": {"192.0.2.1": {"prefix_length": 24}}}}
@@ -67,7 +81,26 @@ def test_translate_interface(sample_device_info, sample_interface_info):
     assert interface.enabled is True
     assert interface.mtu == 1500
     assert interface.mac_address == "00:1C:58:29:4A:71"
-    assert interface.speed == 1000
+    assert interface.speed == 1000000
+    assert interface.description == "Uplink Interface"
+
+
+def test_translate_interface_with_overflow_data(
+    sample_device_info, sample_interface_overflows_info
+):
+    """Ensure interface translation is correct."""
+    device = translate_device(sample_device_info)
+    interface = translate_interface(
+        device,
+        "GigabitEthernet0/0",
+        sample_interface_overflows_info["GigabitEthernet0/0"],
+    )
+    assert interface.device.name == "router1"
+    assert interface.name == "GigabitEthernet0/0"
+    assert interface.enabled is True
+    assert interface.mtu == 0
+    assert interface.mac_address == "00:1C:58:29:4A:71"
+    assert interface.speed == 0
     assert interface.description == "Uplink Interface"
 
 

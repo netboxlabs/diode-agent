@@ -9,11 +9,11 @@ This is a basic set of instructions to get started using Diode NAPALM agent on a
 ## Requirements
 
 The Diode NAPALM Agent requires a Python runtime environment and has the following requirements:
-- importlib-metadata==8.5.0
-- napalm==5.0.0
-- netboxlabs-diode-sdk==0.4.0
-- pydantic==2.9.2
-- python-dotenv==1.0.1
+- importlib-metadata~=8.5
+- napalm~=5.0
+- netboxlabs-diode-sdk~=0.4
+- pydantic~=2.9
+- python-dotenv~=1.0
 
 Instructions on installing the Diode SDK Python can be found [here](https://github.com/netboxlabs/diode-sdk-python).
 
