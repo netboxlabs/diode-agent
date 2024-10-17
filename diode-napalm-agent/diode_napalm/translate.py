@@ -22,7 +22,7 @@ def int32_overflows(number: int) -> bool:
 
     Args:
     ----
-        n (int): The integer to check.
+        number (int): The integer to check.
 
     Returns:
     -------
