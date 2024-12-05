@@ -28,11 +28,10 @@ def napalm_driver_list() -> list[str]:
 
     """
     napalm_packages = ["ios", "eos", "junos", "nxos"]
-    prefix = "napalm-"
-    for dist in importlib_metadata.distributions():
-        if dist.metadata["Name"].startswith(prefix):
-            package = dist.metadata["Name"][len(prefix) :].replace("-", "_")
-            napalm_packages.append(package)
+    prefix = "napalm_"
+    for dist in importlib_metadata.packages_distributions():
+        if dist.startswith(prefix):
+            napalm_packages.append(dist[len(prefix) :])
     return napalm_packages
 
 
