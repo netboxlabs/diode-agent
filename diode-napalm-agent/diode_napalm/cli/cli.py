@@ -46,11 +46,14 @@ def run_driver(info: Napalm, config: DiscoveryConfig):
                 f"Hostname {info.hostname}: Not able to discover device driver"
             )
     elif info.driver not in supported_drivers:
-        raise Exception(
-            f"Hostname {info.hostname}: specified driver '{info.driver}' was not found in the current installed drivers list: "
-            f"{supported_drivers}.\nHINT: If '{info.driver}' is a napalm community driver, try to perform the following command:"
-            f"\n\n\tpip install napalm-{info.driver.replace('_', '-')}\n"
-        )
+        try:
+            np_driver = get_network_driver(info.driver)
+        except Exception:
+            raise Exception(
+                f"Hostname {info.hostname}: specified driver '{info.driver}' was not found in the current installed drivers list: "
+                f"{supported_drivers}.\nHINT: If '{info.driver}' is a napalm community driver, try to perform the following command:"
+                f"\n\n\tpip install napalm-{info.driver.replace('_', '-')}\n"
+            )
 
     logger.info(f"Hostname {info.hostname}: Get driver '{info.driver}'")
     np_driver = get_network_driver(info.driver)
