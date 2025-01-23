@@ -375,14 +375,13 @@ def test_run_driver_with_not_intalled_driver(
     )
     config = DiscoveryConfig(netbox={"site": "test_site"})
 
-    mock_np_driver = MagicMock()
-    mock_get_network_driver.return_value = mock_np_driver
+    mock_get_network_driver.side_effect = Exception("Driver not found")
 
     with pytest.raises(Exception) as excinfo:
         run_driver(info, config)
 
     mock_discover_device_driver.assert_not_called()
-    mock_get_network_driver.assert_not_called()
+    mock_get_network_driver.assert_called_once()
 
     assert str(excinfo.value).startswith(
         f"Hostname {info.hostname}: specified driver '{info.driver}' was not found in the current installed drivers list:"
